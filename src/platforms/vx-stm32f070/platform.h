@@ -33,7 +33,6 @@ void usbuart_debug_outf(const char *fmt, ...);
 #define DEBUG(...) if (debug_bmp) {usbuart_debug_outf("bmp: ");usbuart_debug_outf(__VA_ARGS__);}
 
 
-#include "gpio.h"
 #include "timing.h"
 #include "timing_stm32.h"
 #include "version.h"
@@ -41,8 +40,16 @@ void usbuart_debug_outf(const char *fmt, ...);
 static inline int platform_hwversion(void) { return 0; }
 
 #include <libopencm3/cm3/common.h>
-#include <libopencm3/stm32/f1/memorymap.hxx>
+#include <libopencm3/stm32/gpio.h>
 #include <libopencm3/usb/usbd.h>
+
+
+#define gpio_set_val(port, pin, val) do {	\
+	if(val)					\
+		gpio_set((port), (pin));	\
+	else					\
+		gpio_clear((port), (pin));	\
+} while(0)
 
 #define BOARD_IDENT       "Black Magic Probe (vx), (Firmware " FIRMWARE_VERSION ")"
 #define BOARD_IDENT_DFU   "Black Magic (Upgrade) for STLink/Discovery, (Firmware " FIRMWARE_VERSION ")"
@@ -97,22 +104,24 @@ static inline int platform_hwversion(void) { return 0; }
 #define LED_UART	GPIO0
 
 #define TMS_SET_MODE() \
-	gpio_set_mode(TMS_PORT, GPIO_MODE_OUTPUT_50_MHZ, \
-	              GPIO_CNF_OUTPUT_PUSHPULL, TMS_PIN);
+	gpio_mode_setup(TMS_PORT, GPIO_MODE_OUTPUT, \
+	              GPIO_PUPD_NONE, TMS_PIN); \
+	gpio_set_output_options(TMS_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_HIGH, TMS_PIN);
 #define SWDIO_MODE_FLOAT() \
-	gpio_set_mode(SWDIO_PORT, GPIO_MODE_INPUT, \
-	              GPIO_CNF_INPUT_FLOAT, SWDIO_PIN);
+	gpio_mode_setup(SWDIO_PORT, GPIO_MODE_INPUT, \
+	              GPIO_PUPD_NONE, SWDIO_PIN);
 #define SWDIO_MODE_DRIVE() \
-	gpio_set_mode(SWDIO_PORT, GPIO_MODE_OUTPUT_50_MHZ, \
-	              GPIO_CNF_OUTPUT_PUSHPULL, SWDIO_PIN);
+	gpio_mode_setup(SWDIO_PORT, GPIO_MODE_OUTPUT, \
+	              GPIO_PUPD_NONE, SWDIO_PIN); \
+	gpio_set_output_options(SWDIO_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_HIGH, SWDIO_PIN);
 
 #define UART_PIN_SETUP() \
-	gpio_set_mode(USBUSART_PORT, GPIO_MODE_OUTPUT_2_MHZ, \
-	              GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, USBUSART_TX_PIN);
+	gpio_mode_setup(USBUSART_PORT, GPIO_MODE_AF, GPIO_PUPD_NONE, USBUSART_TX_PIN); \
+	gpio_set_output_options(USBUSART_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_HIGH, USBUSART_TX_PIN);
 
-#define USB_DRIVER      stm32f103_usb_driver
-#define USB_IRQ	        NVIC_USB_LP_CAN_RX0_IRQ
-#define USB_ISR	        usb_lp_can_rx0_isr
+#define USB_DRIVER      st_usbfs_v2_usb_driver
+#define USB_IRQ	        NVIC_USB_IRQ 
+#define USB_ISR	        usb_isr
 /* Interrupt priorities.  Low numbers are high priority.
  * For now USART2 preempts USB which may spin while buffer is drained.
  * TIM3 is used for traceswo capture and must be highest priority.
@@ -130,10 +139,10 @@ static inline int platform_hwversion(void) { return 0; }
 #define USBUSART_PORT GPIOA
 #define USBUSART_TX_PIN GPIO2
 #define USBUSART_ISR usart2_isr
-#define USBUSART_TIM TIM4
-#define USBUSART_TIM_CLK_EN() rcc_periph_clock_enable(RCC_TIM4)
-#define USBUSART_TIM_IRQ NVIC_TIM4_IRQ
-#define USBUSART_TIM_ISR tim4_isr
+#define USBUSART_TIM TIM3
+#define USBUSART_TIM_CLK_EN() rcc_periph_clock_enable(RCC_TIM3)
+#define USBUSART_TIM_IRQ NVIC_TIM3_IRQ
+#define USBUSART_TIM_ISR tim3_isr
 
 //#define DEBUG(...)
 

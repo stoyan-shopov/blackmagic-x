@@ -30,7 +30,7 @@
 #include "version.h"
 
 #include <libopencm3/cm3/common.h>
-#include <libopencm3/stm32/f1/memorymap.h>
+#include <libopencm3/stm32/f1/memorymap.hxx>
 #include <libopencm3/usb/usbd.h>
 
 #define BOARD_IDENT       "Black Magic Probe (STLINK), (Firmware " FIRMWARE_VERSION ")"
