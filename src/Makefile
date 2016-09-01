@@ -10,7 +10,7 @@ endif
 
 OPT_FLAGS ?= -O2
 
-CFLAGS += -Wall -Wextra -Werror -Wno-char-subscripts\
+CFLAGS += -Wall -Wextra -Wno-char-subscripts\
 	$(OPT_FLAGS) -std=gnu99 -g3 -MD \
 	-I. -Iinclude -Iplatforms/common -I$(PLATFORM_DIR)
 LDFLAGS += $(OPT_FLAGS)
@@ -89,7 +89,7 @@ all_platforms:
 	for i in platforms/*/Makefile.inc ; do \
 		export DIRNAME=`dirname $$i` ;\
 		export PROBE_HOST=`basename $$DIRNAME` ;\
-		export CFLAGS=-Werror ;\
+		export CFLAGS= ;\
 		echo "Building for hardware platform: $$PROBE_HOST" ;\
 		$(MAKE) $(MAKEFLAGS) clean ;\
 		$(MAKE) $(MAKEFLAGS);\
