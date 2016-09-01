@@ -32,6 +32,7 @@
 #include <libopencm3/stm32/usart.h>
 #include <libopencm3/usb/usbd.h>
 #include <libopencm3/stm32/adc.h>
+#include <libopencm3/stm32/gpio.h>
 
 uint8_t running_status;
 volatile uint32_t timeout_counter;
@@ -105,3 +106,136 @@ void platform_request_boot(void)
 	while (1);
 }
 
+
+#define SWCLK_HI		do { GPIOB_BSRR = 1 << 5; } while (0);
+#define SWCLK_LOW		do { GPIOB_BRR = 1 << 5; } while (0);
+#define SWCLK_PULSE		do { GPIOB_BSRR = 1 << 5; GPIOB_BRR = 1 << 5; } while (0);
+#define SWDIO_HI		do { GPIOA_BSRR = 1 << 15; } while (0);
+#define SWDIO_LOW		do { GPIOA_BRR = 1 << 15; } while (0);
+#define SWDIO_READ		((GPIOA_IDR & (1 << 15)) ? 1 : 0)
+
+#pragma GCC optimize ("O3")
+
+struct
+{
+	unsigned	seq_in;
+	unsigned	seq_in_parity;
+	unsigned	seq_out;
+	unsigned	seq_out_parity;
+}
+counters;
+
+static inline void swdptap_turnaround(uint8_t dir)
+{
+	static uint8_t olddir = 0;
+
+	/* Don't turnaround if direction not changing */
+	if(dir == olddir) return;
+	olddir = dir;
+
+	DEBUG("%s", dir ? "\n-> ":"\n<- ");
+
+	if(dir)
+		SWDIO_MODE_FLOAT();
+	SWCLK_PULSE
+	if(!dir)
+		SWDIO_MODE_DRIVE();
+}
+
+static inline int swdptap_bit_in_vx(void)
+{
+	uint16_t ret;
+
+	swdptap_turnaround(1);
+
+	ret = SWDIO_READ;
+	SWCLK_PULSE
+                
+	return ret;
+}
+
+uint32_t swdptap_seq_in(int ticks)
+{
+	counters.seq_in ++;
+	if (/* ;-) */ ticks == 3)
+	{
+		int res = 0;
+		swdptap_turnaround(1);
+		if (SWDIO_READ)
+			res |= 1;
+		SWCLK_PULSE
+		if (SWDIO_READ)
+			res |= 2;
+		SWCLK_PULSE
+		if (SWDIO_READ)
+			res |= 4;
+		SWCLK_PULSE
+		return res;
+	}
+	else
+	{
+		uint32_t index = 1;
+		uint32_t ret = 0;
+
+		while (ticks--) {
+			if (swdptap_bit_in_vx())
+				ret |= index;
+			index <<= 1;
+		}
+
+		return ret;
+	}
+}
+
+bool swdptap_seq_in_parity(uint32_t *ret, int ticks)
+{
+	uint32_t index = 1;
+	uint8_t parity = 0;
+	*ret = 0;
+	counters.seq_in_parity ++;
+
+	while (ticks--) {
+		if (swdptap_bit_in_vx()) {
+			*ret |= index;
+			parity ^= 1;
+		}
+		index <<= 1;
+	}
+	if (swdptap_bit_in_vx())
+		parity ^= 1;
+
+	return parity;
+}
+
+void swdptap_seq_out(uint32_t MS, int ticks)
+{
+	counters.seq_out ++;
+	swdptap_turnaround(0);
+
+	while (ticks--) {
+		if (MS & 1)
+			SWDIO_HI
+		else
+			SWDIO_LOW
+		SWCLK_PULSE
+		MS >>= 1;
+	}
+}
+
+void swdptap_seq_out_parity(uint32_t MS, int ticks)
+{
+	int parity;
+	counters.seq_out_parity ++;
+	parity = MS ^ (MS >> 16);
+	parity = parity ^ (parity >> 8);
+	parity = parity ^ (parity >> 4);
+	parity = parity ^ (parity >> 2);
+	parity = parity ^ (parity >> 1);
+
+	swdptap_seq_out(MS, ticks);
+	if (parity & 1)
+		SWDIO_HI
+	else
+		SWDIO_LOW
+	SWCLK_PULSE
+}
