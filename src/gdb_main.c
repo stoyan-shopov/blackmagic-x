@@ -252,7 +252,8 @@ int gdb_main_loop(struct target_controller *tc, bool in_syscall)
 			ERROR_IF_NO_TARGET();
 			sscanf(pbuf, "X%" SCNx32 ",%" SCNx32 ":%n", &addr, &len, &bin);
 			DEBUG("X packet: addr = %" PRIx32 ", len = %" PRIx32 "\n", addr, len);
-			if (target_mem_write(cur_target, addr, pbuf+bin, len))
+			memmove(pbuf, pbuf + bin, len);
+			if (target_mem_write(cur_target, addr, pbuf, len))
 				gdb_putpacketz("E01");
 			else
 				gdb_putpacketz("OK");
