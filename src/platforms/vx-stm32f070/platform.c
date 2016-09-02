@@ -142,9 +142,11 @@ void platform_request_boot(void)
 #define SWCLK_HI		do { GPIOB_BSRR = 1 << 5; } while (0);
 #define SWCLK_LOW		do { GPIOB_BRR = 1 << 5; } while (0);
 #define SWCLK_PULSE		do { GPIOB_BSRR = 1 << 5; GPIOB_BRR = 1 << 5; } while (0);
+#define SWCLK_PULSE_DELAY	do { volatile int i; GPIOB_BSRR = 1 << 5; i = 5; while (i--); GPIOB_BRR = 1 << 5; i = 5; while (i--); } while (0);
 #define SWDIO_HI		do { GPIOA_BSRR = 1 << 15; } while (0);
 #define SWDIO_LOW		do { GPIOA_BRR = 1 << 15; } while (0);
 #define SWDIO_READ		((GPIOA_IDR & (1 << 15)) ? 1 : 0)
+#define SWDIO_READ_MSB		((GPIOA_IDR & (1 << 15)) << 16)
 
 #pragma GCC optimize ("O3")
 
@@ -219,24 +221,79 @@ uint32_t swdptap_seq_in(int ticks)
 	}
 }
 
+static bool swdptap_seq_in_parity_32bits_optimized(uint32_t * ret)
+{
+uint32_t x;
+		swdptap_turnaround(1);
+		x |= SWDIO_READ_MSB; SWCLK_PULSE x >>= 1;
+		x |= SWDIO_READ_MSB; SWCLK_PULSE x >>= 1;
+		x |= SWDIO_READ_MSB; SWCLK_PULSE x >>= 1;
+		x |= SWDIO_READ_MSB; SWCLK_PULSE x >>= 1;
+		x |= SWDIO_READ_MSB; SWCLK_PULSE x >>= 1;
+		x |= SWDIO_READ_MSB; SWCLK_PULSE x >>= 1;
+		x |= SWDIO_READ_MSB; SWCLK_PULSE x >>= 1;
+		x |= SWDIO_READ_MSB; SWCLK_PULSE x >>= 1;
+		x |= SWDIO_READ_MSB; SWCLK_PULSE x >>= 1;
+		x |= SWDIO_READ_MSB; SWCLK_PULSE x >>= 1;
+		x |= SWDIO_READ_MSB; SWCLK_PULSE x >>= 1;
+		x |= SWDIO_READ_MSB; SWCLK_PULSE x >>= 1;
+		x |= SWDIO_READ_MSB; SWCLK_PULSE x >>= 1;
+		x |= SWDIO_READ_MSB; SWCLK_PULSE x >>= 1;
+		x |= SWDIO_READ_MSB; SWCLK_PULSE x >>= 1;
+		x |= SWDIO_READ_MSB; SWCLK_PULSE x >>= 1;
+		x |= SWDIO_READ_MSB; SWCLK_PULSE x >>= 1;
+		x |= SWDIO_READ_MSB; SWCLK_PULSE x >>= 1;
+		x |= SWDIO_READ_MSB; SWCLK_PULSE x >>= 1;
+		x |= SWDIO_READ_MSB; SWCLK_PULSE x >>= 1;
+		x |= SWDIO_READ_MSB; SWCLK_PULSE x >>= 1;
+		x |= SWDIO_READ_MSB; SWCLK_PULSE x >>= 1;
+		x |= SWDIO_READ_MSB; SWCLK_PULSE x >>= 1;
+		x |= SWDIO_READ_MSB; SWCLK_PULSE x >>= 1;
+		x |= SWDIO_READ_MSB; SWCLK_PULSE x >>= 1;
+		x |= SWDIO_READ_MSB; SWCLK_PULSE x >>= 1;
+		x |= SWDIO_READ_MSB; SWCLK_PULSE x >>= 1;
+		x |= SWDIO_READ_MSB; SWCLK_PULSE x >>= 1;
+		x |= SWDIO_READ_MSB; SWCLK_PULSE x >>= 1;
+		x |= SWDIO_READ_MSB; SWCLK_PULSE x >>= 1;
+		x |= SWDIO_READ_MSB; SWCLK_PULSE x >>= 1;
+		x |= SWDIO_READ_MSB; SWCLK_PULSE
+
+		* ret = x;
+		x ^= x >> 16;
+		x ^= x >> 8;
+		x ^= x >> 4;
+		x ^= x >> 2;
+		x ^= x >> 1;
+		
+		if (swdptap_bit_in_vx())
+			x ^= 1;
+
+		return x & 1;
+}
+
 bool swdptap_seq_in_parity(uint32_t *ret, int ticks)
 {
-	uint32_t index = 1;
-	uint8_t parity = 0;
-	*ret = 0;
-	counters.seq_in_parity ++;
+	if (ticks == 32)
+		return swdptap_seq_in_parity_32bits_optimized(ret);
+	else
+	{
+		uint32_t index = 1;
+		uint32_t parity = 0;
+		*ret = 0;
+		counters.seq_in_parity ++;
 
-	while (ticks--) {
-		if (swdptap_bit_in_vx()) {
-			*ret |= index;
-			parity ^= 1;
+		while (ticks--) {
+			if (swdptap_bit_in_vx()) {
+				*ret |= index;
+				parity ^= 1;
+			}
+			index <<= 1;
 		}
-		index <<= 1;
-	}
-	if (swdptap_bit_in_vx())
-		parity ^= 1;
+		if (swdptap_bit_in_vx())
+			parity ^= 1;
 
-	return parity;
+		return parity;
+	}
 }
 
 void swdptap_seq_out(uint32_t MS, int ticks)
@@ -259,10 +316,10 @@ void swdptap_seq_out_parity(uint32_t MS, int ticks)
 	int parity;
 	counters.seq_out_parity ++;
 	parity = MS ^ (MS >> 16);
-	parity = parity ^ (parity >> 8);
-	parity = parity ^ (parity >> 4);
-	parity = parity ^ (parity >> 2);
-	parity = parity ^ (parity >> 1);
+	parity ^= parity >> 8;
+	parity ^= parity >> 4;
+	parity ^= parity >> 2;
+	parity ^= parity >> 1;
 
 	swdptap_seq_out(MS, ticks);
 	if (parity & 1)
