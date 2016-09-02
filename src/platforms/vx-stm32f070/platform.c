@@ -148,6 +148,34 @@ void platform_request_boot(void)
 #define SWDIO_READ		((GPIOA_IDR & (1 << 15)) ? 1 : 0)
 #define SWDIO_READ_MSB		((GPIOA_IDR & (1 << 15)) << 16)
 
+#define SWDIO_BIT_PORT_ADDR		& GPIOA_BSRR
+#define SWDIO_SET_BIT_PORT_MASK		(1 << 15)
+#define SWDIO_RESET_BIT_PORT_MASK	(1 << 31)
+
+#define SWCLK_BIT_PORT_ADDR		& GPIOB_BSRR
+#define SWCLK_SET_BIT_PORT_MASK		(1 << 5)
+#define SWCLK_RESET_BIT_PORT_MASK	(1 << 21)
+
+static const struct sw_driving_data
+{
+	uint32_t	swdio_set_reset_port_address;
+	uint32_t	swdio_set_bit_mask;
+	uint32_t	swdio_reset_bit_mask;
+	uint32_t	swclk_set_reset_port_address;
+	uint32_t	swclk_set_bit_mask;
+	uint32_t	swclk_reset_bit_mask;
+}
+vx_sw_driving_data =
+{
+	.swdio_set_reset_port_address	=	SWDIO_BIT_PORT_ADDR,
+	.swdio_set_bit_mask		=	SWDIO_SET_BIT_PORT_MASK,
+	.swdio_reset_bit_mask		=	SWDIO_RESET_BIT_PORT_MASK,
+	.swclk_set_reset_port_address	=	SWCLK_BIT_PORT_ADDR,
+	.swclk_set_bit_mask		=	SWCLK_SET_BIT_PORT_MASK,
+	.swclk_reset_bit_mask		=	SWCLK_RESET_BIT_PORT_MASK,
+};
+
+
 #pragma GCC optimize ("O3")
 
 struct
@@ -296,18 +324,336 @@ bool swdptap_seq_in_parity(uint32_t *ret, int ticks)
 	}
 }
 
+
+static void swdptap_seq_out_32bits_optimized_asm(struct sw_driving_data * sw, uint32_t data) __attribute__((naked));
+static void swdptap_seq_out_32bits_optimized_asm(struct sw_driving_data * sw, uint32_t data)
+{
+	asm("push	{ r4, r5, r6, lr }");
+	asm("mov	r6,	r1");
+	asm("ldmia	r0,	{ r0, r1, r2, r3, r4, r5 }");
+
+	/* drive data */
+	asm("lsr	r6,	r6,	#1");
+	asm("str	r1,	[r0]");
+	asm("bcs	1f");
+	asm("str	r2,	[r0]");
+	asm("1:");
+	/* pulse clock */
+	asm("str	r4,	[r3]");
+	asm("str	r5,	[r3]");
+	/* drive data */
+	asm("lsr	r6,	r6,	#1");
+	asm("str	r1,	[r0]");
+	asm("bcs	1f");
+	asm("str	r2,	[r0]");
+	asm("1:");
+	/* pulse clock */
+	asm("str	r4,	[r3]");
+	asm("str	r5,	[r3]");
+	/* drive data */
+	asm("lsr	r6,	r6,	#1");
+	asm("str	r1,	[r0]");
+	asm("bcs	1f");
+	asm("str	r2,	[r0]");
+	asm("1:");
+	/* pulse clock */
+	asm("str	r4,	[r3]");
+	asm("str	r5,	[r3]");
+	/* drive data */
+	asm("lsr	r6,	r6,	#1");
+	asm("str	r1,	[r0]");
+	asm("bcs	1f");
+	asm("str	r2,	[r0]");
+	asm("1:");
+	/* pulse clock */
+	asm("str	r4,	[r3]");
+	asm("str	r5,	[r3]");
+	/* drive data */
+	asm("lsr	r6,	r6,	#1");
+	asm("str	r1,	[r0]");
+	asm("bcs	1f");
+	asm("str	r2,	[r0]");
+	asm("1:");
+	/* pulse clock */
+	asm("str	r4,	[r3]");
+	asm("str	r5,	[r3]");
+	/* drive data */
+	asm("lsr	r6,	r6,	#1");
+	asm("str	r1,	[r0]");
+	asm("bcs	1f");
+	asm("str	r2,	[r0]");
+	asm("1:");
+	/* pulse clock */
+	asm("str	r4,	[r3]");
+	asm("str	r5,	[r3]");
+	/* drive data */
+	asm("lsr	r6,	r6,	#1");
+	asm("str	r1,	[r0]");
+	asm("bcs	1f");
+	asm("str	r2,	[r0]");
+	asm("1:");
+	/* pulse clock */
+	asm("str	r4,	[r3]");
+	asm("str	r5,	[r3]");
+	/* drive data */
+	asm("lsr	r6,	r6,	#1");
+	asm("str	r1,	[r0]");
+	asm("bcs	1f");
+	asm("str	r2,	[r0]");
+	asm("1:");
+	/* pulse clock */
+	asm("str	r4,	[r3]");
+	asm("str	r5,	[r3]");
+	/* drive data */
+	asm("lsr	r6,	r6,	#1");
+	asm("str	r1,	[r0]");
+	asm("bcs	1f");
+	asm("str	r2,	[r0]");
+	asm("1:");
+	/* pulse clock */
+	asm("str	r4,	[r3]");
+	asm("str	r5,	[r3]");
+	/* drive data */
+	asm("lsr	r6,	r6,	#1");
+	asm("str	r1,	[r0]");
+	asm("bcs	1f");
+	asm("str	r2,	[r0]");
+	asm("1:");
+	/* pulse clock */
+	asm("str	r4,	[r3]");
+	asm("str	r5,	[r3]");
+	/* drive data */
+	asm("lsr	r6,	r6,	#1");
+	asm("str	r1,	[r0]");
+	asm("bcs	1f");
+	asm("str	r2,	[r0]");
+	asm("1:");
+	/* pulse clock */
+	asm("str	r4,	[r3]");
+	asm("str	r5,	[r3]");
+	/* drive data */
+	asm("lsr	r6,	r6,	#1");
+	asm("str	r1,	[r0]");
+	asm("bcs	1f");
+	asm("str	r2,	[r0]");
+	asm("1:");
+	/* pulse clock */
+	asm("str	r4,	[r3]");
+	asm("str	r5,	[r3]");
+	/* drive data */
+	asm("lsr	r6,	r6,	#1");
+	asm("str	r1,	[r0]");
+	asm("bcs	1f");
+	asm("str	r2,	[r0]");
+	asm("1:");
+	/* pulse clock */
+	asm("str	r4,	[r3]");
+	asm("str	r5,	[r3]");
+	/* drive data */
+	asm("lsr	r6,	r6,	#1");
+	asm("str	r1,	[r0]");
+	asm("bcs	1f");
+	asm("str	r2,	[r0]");
+	asm("1:");
+	/* pulse clock */
+	asm("str	r4,	[r3]");
+	asm("str	r5,	[r3]");
+	/* drive data */
+	asm("lsr	r6,	r6,	#1");
+	asm("str	r1,	[r0]");
+	asm("bcs	1f");
+	asm("str	r2,	[r0]");
+	asm("1:");
+	/* pulse clock */
+	asm("str	r4,	[r3]");
+	asm("str	r5,	[r3]");
+	/* drive data */
+	asm("lsr	r6,	r6,	#1");
+	asm("str	r1,	[r0]");
+	asm("bcs	1f");
+	asm("str	r2,	[r0]");
+	asm("1:");
+	/* pulse clock */
+	asm("str	r4,	[r3]");
+	asm("str	r5,	[r3]");
+	/* drive data */
+	asm("lsr	r6,	r6,	#1");
+	asm("str	r1,	[r0]");
+	asm("bcs	1f");
+	asm("str	r2,	[r0]");
+	asm("1:");
+	/* pulse clock */
+	asm("str	r4,	[r3]");
+	asm("str	r5,	[r3]");
+	/* drive data */
+	asm("lsr	r6,	r6,	#1");
+	asm("str	r1,	[r0]");
+	asm("bcs	1f");
+	asm("str	r2,	[r0]");
+	asm("1:");
+	/* pulse clock */
+	asm("str	r4,	[r3]");
+	asm("str	r5,	[r3]");
+	/* drive data */
+	asm("lsr	r6,	r6,	#1");
+	asm("str	r1,	[r0]");
+	asm("bcs	1f");
+	asm("str	r2,	[r0]");
+	asm("1:");
+	/* pulse clock */
+	asm("str	r4,	[r3]");
+	asm("str	r5,	[r3]");
+	/* drive data */
+	asm("lsr	r6,	r6,	#1");
+	asm("str	r1,	[r0]");
+	asm("bcs	1f");
+	asm("str	r2,	[r0]");
+	asm("1:");
+	/* pulse clock */
+	asm("str	r4,	[r3]");
+	asm("str	r5,	[r3]");
+	/* drive data */
+	asm("lsr	r6,	r6,	#1");
+	asm("str	r1,	[r0]");
+	asm("bcs	1f");
+	asm("str	r2,	[r0]");
+	asm("1:");
+	/* pulse clock */
+	asm("str	r4,	[r3]");
+	asm("str	r5,	[r3]");
+	/* drive data */
+	asm("lsr	r6,	r6,	#1");
+	asm("str	r1,	[r0]");
+	asm("bcs	1f");
+	asm("str	r2,	[r0]");
+	asm("1:");
+	/* pulse clock */
+	asm("str	r4,	[r3]");
+	asm("str	r5,	[r3]");
+	/* drive data */
+	asm("lsr	r6,	r6,	#1");
+	asm("str	r1,	[r0]");
+	asm("bcs	1f");
+	asm("str	r2,	[r0]");
+	asm("1:");
+	/* pulse clock */
+	asm("str	r4,	[r3]");
+	asm("str	r5,	[r3]");
+	/* drive data */
+	asm("lsr	r6,	r6,	#1");
+	asm("str	r1,	[r0]");
+	asm("bcs	1f");
+	asm("str	r2,	[r0]");
+	asm("1:");
+	/* pulse clock */
+	asm("str	r4,	[r3]");
+	asm("str	r5,	[r3]");
+	/* drive data */
+	asm("lsr	r6,	r6,	#1");
+	asm("str	r1,	[r0]");
+	asm("bcs	1f");
+	asm("str	r2,	[r0]");
+	asm("1:");
+	/* pulse clock */
+	asm("str	r4,	[r3]");
+	asm("str	r5,	[r3]");
+	/* drive data */
+	asm("lsr	r6,	r6,	#1");
+	asm("str	r1,	[r0]");
+	asm("bcs	1f");
+	asm("str	r2,	[r0]");
+	asm("1:");
+	/* pulse clock */
+	asm("str	r4,	[r3]");
+	asm("str	r5,	[r3]");
+	/* drive data */
+	asm("lsr	r6,	r6,	#1");
+	asm("str	r1,	[r0]");
+	asm("bcs	1f");
+	asm("str	r2,	[r0]");
+	asm("1:");
+	/* pulse clock */
+	asm("str	r4,	[r3]");
+	asm("str	r5,	[r3]");
+	/* drive data */
+	asm("lsr	r6,	r6,	#1");
+	asm("str	r1,	[r0]");
+	asm("bcs	1f");
+	asm("str	r2,	[r0]");
+	asm("1:");
+	/* pulse clock */
+	asm("str	r4,	[r3]");
+	asm("str	r5,	[r3]");
+	/* drive data */
+	asm("lsr	r6,	r6,	#1");
+	asm("str	r1,	[r0]");
+	asm("bcs	1f");
+	asm("str	r2,	[r0]");
+	asm("1:");
+	/* pulse clock */
+	asm("str	r4,	[r3]");
+	asm("str	r5,	[r3]");
+	/* drive data */
+	asm("lsr	r6,	r6,	#1");
+	asm("str	r1,	[r0]");
+	asm("bcs	1f");
+	asm("str	r2,	[r0]");
+	asm("1:");
+	/* pulse clock */
+	asm("str	r4,	[r3]");
+	asm("str	r5,	[r3]");
+	/* drive data */
+	asm("lsr	r6,	r6,	#1");
+	asm("str	r1,	[r0]");
+	asm("bcs	1f");
+	asm("str	r2,	[r0]");
+	asm("1:");
+	/* pulse clock */
+	asm("str	r4,	[r3]");
+	asm("str	r5,	[r3]");
+	/* drive data */
+	asm("lsr	r6,	r6,	#1");
+	asm("str	r1,	[r0]");
+	asm("bcs	1f");
+	asm("str	r2,	[r0]");
+	asm("1:");
+	/* pulse clock */
+	asm("str	r4,	[r3]");
+	asm("str	r5,	[r3]");
+
+	asm("pop	{ r4, r5, r6, pc }");
+}
+
+
+void swdptap_seq_out_32bits_optimized(uint32_t x)
+{
+//static const uint32_t masks[2] = { SWDIO_RESET_BIT_PORT_MASK, SWDIO_SET_BIT_PORT_MASK, };
+	//if (x & 1) SWDIO_HI else SWDIO_LOW SWCLK_PULSE x >>= 1;
+	//SWDIO_BIT_PORT_ADDR = masks[x & 1]; SWCLK_PULSE x >>= 1;
+int i = 32;
+	while (i --)
+	{
+		* SWDIO_BIT_PORT_ADDR = (uint32_t[2]){SWDIO_RESET_BIT_PORT_MASK, SWDIO_SET_BIT_PORT_MASK, } [x & 1]; SWCLK_PULSE x >>= 1;
+	}
+}
+
 void swdptap_seq_out(uint32_t MS, int ticks)
 {
-	counters.seq_out ++;
 	swdptap_turnaround(0);
+	if (ticks == 32)
+		swdptap_seq_out_32bits_optimized_asm(& vx_sw_driving_data, MS);
+	else
+	{
+		counters.seq_out ++;
 
-	while (ticks--) {
-		if (MS & 1)
-			SWDIO_HI
-		else
-			SWDIO_LOW
-		SWCLK_PULSE
-		MS >>= 1;
+		while (ticks--) {
+			if (MS & 1)
+				SWDIO_HI
+			else
+				SWDIO_LOW
+			SWCLK_PULSE
+			MS >>= 1;
+		}
 	}
 }
 
