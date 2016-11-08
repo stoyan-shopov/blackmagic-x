@@ -69,6 +69,7 @@ SRC =			\
 	sforth/sf-opt-string.c	\
 	sforth/sf-opt-prog-tools.c	\
 	sforth/sf-opt-file.c	\
+	blackstrike-dictionary.c	\
 
 include $(PLATFORM_DIR)/Makefile.inc
 
