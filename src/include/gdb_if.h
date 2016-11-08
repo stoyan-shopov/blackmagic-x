@@ -30,6 +30,9 @@ int gdb_if_init(void);
 unsigned char gdb_if_getchar(void);
 unsigned char gdb_if_getchar_to(int timeout);
 void gdb_if_putchar(unsigned char c, int flush);
+void gdb_if_putchar_single(unsigned char c);
+void gdb_if_flush(void);
+unsigned char gdb_if_getchar_single(void);
 
 #endif
 

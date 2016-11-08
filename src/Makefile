@@ -15,12 +15,17 @@ OPT_FLAGS ?= -O2
 #-I. -Iinclude -Iplatforms/common -I$(PLATFORM_DIR)
 CFLAGS += -Wall -Wextra -Wno-char-subscripts\
 	$(OPT_FLAGS) -std=gnu99 -g3 -MD \
-	-I. -Iinclude -Iplatforms/common -I$(PLATFORM_DIR)
+	-I. -Iinclude -Iplatforms/common -I$(PLATFORM_DIR) \
+	-I./sforth/
 LDFLAGS += $(OPT_FLAGS)
 
 ifeq ($(ENABLE_DEBUG), 1)
 CFLAGS += -DENABLE_DEBUG
 endif
+
+CFLAGS += -DENGINE_32BIT
+CFLAGS += -DCORE_CELLS_COUNT=256
+CFLAGS += -DSTACK_DEPTH=32
 
 SRC =			\
 	adiv5.c		\
@@ -59,6 +64,11 @@ SRC =			\
 	swdptap.c	\
 	swdptap_generic.c	\
 	target.c	\
+	sforth/engine.c	\
+	sforth/sf-arch-default.c	\
+	sforth/sf-opt-string.c	\
+	sforth/sf-opt-prog-tools.c	\
+	sforth/sf-opt-file.c	\
 
 include $(PLATFORM_DIR)/Makefile.inc
 
