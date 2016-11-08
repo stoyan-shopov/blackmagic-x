@@ -8,7 +8,7 @@ CFLAGS += -mcpu=cortex-m0 -mthumb \
 	-I platforms/stm32
 LDFLAGS_BOOT := $(LDFLAGS) --specs=nano.specs \
 	-lopencm3_stm32f0 -Wl,--defsym,_stack=0x20004000 \
-	-Wl,-T,platforms/stm32/stlink.ld -nostartfiles -lc -lnosys \
+	-Wl,-T,platforms/vx-stm32f070/stm32f070.ld -nostartfiles -lc -lnosys \
 	-Wl,-Map=mapfile -mthumb -mcpu=cortex-m0 -Wl,-gc-sections \
 	-L../libopencm3/lib
 LDFLAGS = $(LDFLAGS_BOOT) -Wl,-Ttext=0x8000000

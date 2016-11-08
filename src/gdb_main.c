@@ -109,12 +109,13 @@ int sfsync(void)
 	return 0;
 }
 
+bool platform_sforth_entry_requested(void);
 int gdb_main_loop(struct target_controller *tc, bool in_syscall)
 {
 	int size;
 	bool single_step = false;
 
-	while(1)sf_reset(),do_quit();
+	if(platform_sforth_entry_requested())while(1)sf_reset(),do_quit();
 
 	DEBUG("Entring GDB protocol main loop\n");
 	/* GDB protocol main loop */
