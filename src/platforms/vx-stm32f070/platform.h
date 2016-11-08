@@ -90,9 +90,9 @@ static inline int platform_hwversion(void) { return 0; }
 #define TDO_PIN		GPIO0
 
 #define SWDIO_PORT 	GPIOA
-#define SWCLK_PORT 	GPIOB
-#define SWDIO_PIN	GPIO15
-#define SWCLK_PIN	GPIO5
+#define SWCLK_PORT 	GPIOA
+#define SWDIO_PIN	GPIO5
+#define SWCLK_PIN	GPIO6
 
 #define SRST_PORT	GPIOA
 #define SRST_PIN_V1	GPIO0
