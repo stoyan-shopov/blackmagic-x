@@ -95,6 +95,7 @@ blackmagic: include/version.h $(OBJ)
 
 clean:	host_clean
 	$(Q)echo "  CLEAN"
+	-$(Q)$(RM) -f ./sforth/*.o ./sforth/*.d ./sforth/*~
 	-$(Q)$(RM) -f *.o *.d *~ blackmagic $(HOSTFILES)
 	-$(Q)$(RM) -f platforms/*/*.o platforms/*/*.d mapfile
 

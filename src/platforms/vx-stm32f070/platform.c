@@ -65,6 +65,11 @@ static void rcc_clock_setup_in_hse_8mhz_out_48mhz(void)
 }
 
 
+bool platform_sforth_entry_requested(void)
+{
+	gpio_mode_setup(GPIOC, GPIO_MODE_INPUT, GPIO_PUPD_PULLDOWN, GPIO14);
+	return (GPIOC_IDR & (1 << 14)) ? true : false;
+}
 
 void platform_init(void)
 {
@@ -251,7 +256,7 @@ uint32_t swdptap_seq_in(int ticks)
 
 static bool swdptap_seq_in_parity_32bits_optimized(uint32_t * ret)
 {
-uint32_t x;
+uint32_t x = 0;
 		swdptap_turnaround(1);
 		x |= SWDIO_READ_MSB; SWCLK_PULSE x >>= 1;
 		x |= SWDIO_READ_MSB; SWCLK_PULSE x >>= 1;
