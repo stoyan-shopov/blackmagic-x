@@ -104,7 +104,7 @@ void platform_init(void)
 	gpio_mode_setup(SWDIO_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, SWDIO_PIN);
 	gpio_set_output_options(SWDIO_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_HIGH, SWDIO_PIN);
 
-	SCB_VTOR = 0x0000; /* Relocate interrupt vector table here */
+	//SCB_VTOR = 0x0000; /* Relocate interrupt vector table here */
 
 	platform_timing_init();
 	cdcacm_init();
@@ -139,22 +139,22 @@ void platform_request_boot(void)
 }
 
 
-#define SWCLK_HI		do { GPIOB_BSRR = 1 << 5; } while (0);
-#define SWCLK_LOW		do { GPIOB_BRR = 1 << 5; } while (0);
-#define SWCLK_PULSE		do { GPIOB_BSRR = 1 << 5; GPIOB_BRR = 1 << 5; } while (0);
-#define SWCLK_PULSE_DELAY	do { volatile int i; GPIOB_BSRR = 1 << 5; i = 5; while (i--); GPIOB_BRR = 1 << 5; i = 5; while (i--); } while (0);
-#define SWDIO_HI		do { GPIOA_BSRR = 1 << 15; } while (0);
-#define SWDIO_LOW		do { GPIOA_BRR = 1 << 15; } while (0);
-#define SWDIO_READ		((GPIOA_IDR & (1 << 15)) ? 1 : 0)
-#define SWDIO_READ_MSB		((GPIOA_IDR & (1 << 15)) << 16)
+#define SWCLK_HI		do { GPIOA_BSRR = 1 << 6; } while (0);
+#define SWCLK_LOW		do { GPIOA_BRR = 1 << 6; } while (0);
+#define SWCLK_PULSE		do { GPIOA_BSRR = 1 << 6; GPIOA_BRR = 1 << 6; } while (0);
+#define SWCLK_PULSE_DELAY	do { volatile int i; GPIOB_ASRR = 1 << 6; i = 5; while (i--); GPIOA_BRR = 1 << 6; i = 5; while (i--); } while (0);
+#define SWDIO_HI		do { GPIOA_BSRR = 1 << 5; } while (0);
+#define SWDIO_LOW		do { GPIOA_BRR = 1 << 5; } while (0);
+#define SWDIO_READ		((GPIOA_IDR & (1 << 5)) ? 1 : 0)
+#define SWDIO_READ_MSB		((GPIOA_IDR & (1 << 5)) << 26)
 
 #define SWDIO_BIT_PORT_ADDR		& GPIOA_BSRR
-#define SWDIO_SET_BIT_PORT_MASK		(1 << 15)
-#define SWDIO_RESET_BIT_PORT_MASK	(1 << 31)
+#define SWDIO_SET_BIT_PORT_MASK		(1 << 5)
+#define SWDIO_RESET_BIT_PORT_MASK	(1 << (16 + 5))
 
-#define SWCLK_BIT_PORT_ADDR		& GPIOB_BSRR
-#define SWCLK_SET_BIT_PORT_MASK		(1 << 5)
-#define SWCLK_RESET_BIT_PORT_MASK	(1 << 21)
+#define SWCLK_BIT_PORT_ADDR		& GPIOA_BSRR
+#define SWCLK_SET_BIT_PORT_MASK		(1 << 6)
+#define SWCLK_RESET_BIT_PORT_MASK	(1 << (16 + 6))
 
 static const struct sw_driving_data
 {
