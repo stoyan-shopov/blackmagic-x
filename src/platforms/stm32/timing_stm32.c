@@ -27,15 +27,13 @@ static volatile uint32_t time_ms;
 
 void platform_timing_init(void)
 {
-#if 0
 	/* Setup heartbeat timer */
-	systick_set_clocksource(STK_CSR_CLKSOURCE_AHB_DIV8);
-	systick_set_reload(900000);	/* Interrupt us at 10 Hz */
+	systick_set_clocksource(STK_CSR_CLKSOURCE_EXT);
+	systick_set_reload(600000);	/* Interrupt us at 10 Hz */
 	SCB_SHPR(11) &= ~((15 << 4) & 0xff);
 	SCB_SHPR(11) |= ((14 << 4) & 0xff);
 	systick_interrupt_enable();
 	systick_counter_enable();
-#endif
 }
 
 void platform_delay(uint32_t ms)
