@@ -499,11 +499,13 @@ void gdb_main(void)
 #include "sf-word-wizard.h"
 
 static void do_swdp_scan(void) { sf_push(command_process(cur_target, "swdp_scan")); }
+static void do_gdb_attach(void) { sf_push((cur_target = target_attach_n(1, &gdb_controller)) != 0); }
 
 static struct word dict_base_dummy_word[1] = { MKWORD(0, 0, "", 0), };
 static const struct word custom_dict[] = {
 	/* override the sforth supplied engine reset */
 	MKWORD(dict_base_dummy_word,	0,		"swdp-scan",	do_swdp_scan),
+	MKWORD(custom_dict,		__COUNTER__,	"gdb-attach",	do_gdb_attach),
 
 }, * custom_dict_start = custom_dict + __COUNTER__;
 
