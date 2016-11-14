@@ -40,6 +40,15 @@ volatile uint32_t timeout_counter;
 
 uint16_t led_idle_run;
 
+static bool platform_sforth_entry_requested(void)
+{
+	gpio_mode_setup(GPIOC, GPIO_MODE_INPUT, GPIO_PUPD_PULLDOWN, GPIO14);
+	return (GPIOC_IDR & (1 << 14)) ? true : false;
+}
+
+static bool sforth_mode_active;
+bool is_sforth_mode_active(void) { return sforth_mode_active; }
+
 static void rcc_clock_setup_in_hse_8mhz_out_48mhz(void)
 {
 	rcc_osc_on(RCC_HSE);
@@ -62,13 +71,6 @@ static void rcc_clock_setup_in_hse_8mhz_out_48mhz(void)
 
 	rcc_apb1_frequency = 48000000;
 	rcc_ahb_frequency = 48000000;
-}
-
-
-bool platform_sforth_entry_requested(void)
-{
-	gpio_mode_setup(GPIOC, GPIO_MODE_INPUT, GPIO_PUPD_PULLDOWN, GPIO14);
-	return (GPIOC_IDR & (1 << 14)) ? true : false;
 }
 
 void platform_init(void)
@@ -110,6 +112,8 @@ void platform_init(void)
 	gpio_set_output_options(SWDIO_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_HIGH, SWDIO_PIN);
 
 	//SCB_VTOR = 0x0000; /* Relocate interrupt vector table here */
+	if (platform_sforth_entry_requested())
+		sforth_mode_active = true;
 
 	platform_timing_init();
 	cdcacm_init();
