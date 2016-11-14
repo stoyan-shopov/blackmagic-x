@@ -493,3 +493,21 @@ void gdb_main(void)
 	gdb_main_loop(&gdb_controller, false);
 }
 
+/* sforth extension words */
+#include "engine.h"
+#include "sf-word-wizard.h"
+
+static void do_swdp_scan(void) { sf_push(command_process(cur_target, "swdp_scan")); }
+
+static struct word dict_base_dummy_word[1] = { MKWORD(0, 0, "", 0), };
+static const struct word custom_dict[] = {
+	/* override the sforth supplied engine reset */
+	MKWORD(dict_base_dummy_word,	0,		"swdp-scan",	do_swdp_scan),
+
+}, * custom_dict_start = custom_dict + __COUNTER__;
+
+static void sf_gdb_main_init(void) __attribute__((constructor));
+static void sf_gdb_main_init(void)
+{
+	sf_merge_custom_dictionary(dict_base_dummy_word, custom_dict_start);
+}
