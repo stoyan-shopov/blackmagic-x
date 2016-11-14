@@ -90,43 +90,52 @@ int gdb_getpacket(char *packet, int size)
 
 void gdb_putpacket(const char *packet, int size)
 {
-	int i;
-	unsigned char csum;
-	unsigned char c;
-	char xmit_csum[3];
-	int tries = 0;
+	if (!is_sforth_mode_active())
+	{
+		int i;
+		unsigned char csum;
+		unsigned char c;
+		char xmit_csum[3];
+		int tries = 0;
 
-	do {
+		do {
 #ifdef DEBUG_GDBPACKET
-		DEBUG("%s : ", __func__);
+			DEBUG("%s : ", __func__);
 #endif
-		csum = 0;
-		gdb_if_putchar('$', 0);
-		for(i = 0; i < size; i++) {
-			c = packet[i];
+			csum = 0;
+			gdb_if_putchar('$', 0);
+			for(i = 0; i < size; i++) {
+				c = packet[i];
 #ifdef DEBUG_GDBPACKET
-			if ((c >= 32) && (c < 127))
-				DEBUG("%c", c);
-			else
-				DEBUG("\\x%02X", c);
+				if ((c >= 32) && (c < 127))
+					DEBUG("%c", c);
+				else
+					DEBUG("\\x%02X", c);
 #endif
-			if((c == '$') || (c == '#') || (c == '}')) {
-				gdb_if_putchar('}', 0);
-				gdb_if_putchar(c ^ 0x20, 0);
-				csum += '}' + (c ^ 0x20);
-			} else {
-				gdb_if_putchar(c, 0);
-				csum += c;
+				if((c == '$') || (c == '#') || (c == '}')) {
+					gdb_if_putchar('}', 0);
+					gdb_if_putchar(c ^ 0x20, 0);
+					csum += '}' + (c ^ 0x20);
+				} else {
+					gdb_if_putchar(c, 0);
+					csum += c;
+				}
 			}
-		}
-		gdb_if_putchar('#', 0);
-		sprintf(xmit_csum, "%02X", csum);
-		gdb_if_putchar(xmit_csum[0], 0);
-		gdb_if_putchar(xmit_csum[1], 1);
+			gdb_if_putchar('#', 0);
+			sprintf(xmit_csum, "%02X", csum);
+			gdb_if_putchar(xmit_csum[0], 0);
+			gdb_if_putchar(xmit_csum[1], 1);
 #ifdef DEBUG_GDBPACKET
-		DEBUG("\n");
+			DEBUG("\n");
 #endif
-	} while((gdb_if_getchar_to(2000) != '+') && (tries++ < 3));
+		} while((gdb_if_getchar_to(2000) != '+') && (tries++ < 3));
+	}
+	else
+	{
+		while (size --)
+			gdb_if_putchar_single(* packet ++);
+		gdb_if_flush();
+	}
 }
 
 void gdb_putpacket_f(const char *fmt, ...)
@@ -144,13 +153,18 @@ void gdb_putpacket_f(const char *fmt, ...)
 
 void gdb_out(const char *buf)
 {
-	char *hexdata;
-	int i;
+	if (!is_sforth_mode_active())
+	{
+		char *hexdata;
+		int i;
 
-	hexdata = alloca((i = strlen(buf)*2 + 1) + 1);
-	hexdata[0] = 'O';
-	hexify(hexdata+1, buf, strlen(buf));
-	gdb_putpacket(hexdata, i);
+		hexdata = alloca((i = strlen(buf)*2 + 1) + 1);
+		hexdata[0] = 'O';
+		hexify(hexdata+1, buf, strlen(buf));
+		gdb_putpacket(hexdata, i);
+	}
+	else
+		gdb_putpacket(buf, strlen(buf));
 }
 
 void gdb_voutf(const char *fmt, va_list ap)
