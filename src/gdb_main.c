@@ -511,15 +511,31 @@ static void do_read_registers(void)
 	}
 	else
 	{
-			print_str("target not connected\n");
+		print_str("target not connected\n");
 	}
 }
+static void do_target_fetch(void)
+{
+uint32_t address, x;
+	address = sf_pop();
+	if (!cur_target)
+	{
+		print_str("target not connected\n");
+		return;
+	}
+	if (!target_mem_read(cur_target, &x, address, sizeof x))
+		sf_push(x);
+	else
+		sf_push(address), sf_eval(".( failed to read memory at address ) base @ swap hex . cr base !"), sf_push(-1);
+}
+
 static struct word dict_base_dummy_word[1] = { MKWORD(0, 0, "", 0), };
 static const struct word custom_dict[] = {
 	/* override the sforth supplied engine reset */
 	MKWORD(dict_base_dummy_word,	0,		"swdp-scan",	do_swdp_scan),
 	MKWORD(custom_dict,		__COUNTER__,	"gdb-attach",	do_gdb_attach),
 	MKWORD(custom_dict,		__COUNTER__,	"?regs",	do_read_registers),
+	MKWORD(custom_dict,		__COUNTER__,	"t@",		do_target_fetch),
 
 }, * custom_dict_start = custom_dict + __COUNTER__;
 
