@@ -498,12 +498,28 @@ void gdb_main(void)
 
 static void do_swdp_scan(void) { sf_push(command_process(cur_target, "swdp_scan")); }
 static void do_gdb_attach(void) { sf_push((cur_target = target_attach_n(1, &gdb_controller)) != 0); }
-
+static void do_read_registers(void)
+{
+	if (cur_target)
+	{
+		int i, n;
+		uint32_t arm_regs[n = (target_regs_size(cur_target) / sizeof(uint32_t))];
+		target_regs_read(cur_target, arm_regs);
+		sf_eval("base @ hex");
+		for (i = 0; i < n; sf_push(arm_regs[i ++]), sf_eval("u. cr"));
+		sf_eval("base !");
+	}
+	else
+	{
+			print_str("target not connected\n");
+	}
+}
 static struct word dict_base_dummy_word[1] = { MKWORD(0, 0, "", 0), };
 static const struct word custom_dict[] = {
 	/* override the sforth supplied engine reset */
 	MKWORD(dict_base_dummy_word,	0,		"swdp-scan",	do_swdp_scan),
 	MKWORD(custom_dict,		__COUNTER__,	"gdb-attach",	do_gdb_attach),
+	MKWORD(custom_dict,		__COUNTER__,	"?regs",	do_read_registers),
 
 }, * custom_dict_start = custom_dict + __COUNTER__;
 
