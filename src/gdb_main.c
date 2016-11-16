@@ -530,6 +530,19 @@ uint32_t address, x;
 	else
 		sf_push(address), sf_eval(".( failed to read memory at address ) base @ swap hex . cr base !"), sf_push(-1);
 }
+static void do_target_single_step(void)
+{
+target_addr watch;
+enum target_halt_reason reason;
+
+	target_halt_resume(cur_target, true);
+	SET_RUN_STATE(1);
+
+	/* Wait for target halt */
+	while(!(reason = target_halt_poll(cur_target, &watch)));
+	SET_RUN_STATE(0);
+	sf_push(reason);
+}
 
 static struct word dict_base_dummy_word[1] = { MKWORD(0, 0, "", 0), };
 static const struct word custom_dict[] = {
@@ -538,6 +551,7 @@ static const struct word custom_dict[] = {
 	MKWORD(custom_dict,		__COUNTER__,	"gdb-attach",	do_gdb_attach),
 	MKWORD(custom_dict,		__COUNTER__,	"?regs",	do_read_registers),
 	MKWORD(custom_dict,		__COUNTER__,	"t@",		do_target_fetch),
+	MKWORD(custom_dict,		__COUNTER__,	"step",		do_target_single_step),
 
 }, * custom_dict_start = custom_dict + __COUNTER__;
 
