@@ -68,7 +68,7 @@ void gdb_if_flush(void)
 {
 	/* Refuse to send if USB isn't configured, and
 	 * don't bother if nobody's listening */
-	if((cdcacm_get_config() != 1) /*|| !cdcacm_get_dtr()*/) {
+	if((cdcacm_get_config() != 1) || !count_in /*|| !cdcacm_get_dtr()*/) {
 		count_in = 0;
 		return;
 	}
