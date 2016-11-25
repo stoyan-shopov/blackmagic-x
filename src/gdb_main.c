@@ -506,8 +506,8 @@ static void do_read_registers(void)
 		uint32_t arm_regs[n = (target_regs_size(cur_target) / sizeof(uint32_t))];
 		target_regs_read(cur_target, arm_regs);
 		sf_eval("base @ hex");
-		for (i = 0; i < n; sf_push(arm_regs[i ++]), sf_eval("u. cr"));
-		sf_eval("base !");
+		for (i = 0; i < n; sf_push(arm_regs[i ++]), do_u_dot());
+		sf_eval("cr base !");
 	}
 	else
 	{
