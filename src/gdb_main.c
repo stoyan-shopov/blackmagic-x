@@ -543,6 +543,11 @@ enum target_halt_reason reason;
 	SET_RUN_STATE(0);
 	sf_push(reason);
 }
+static void do_question_target_mem_map(void)
+{
+	print_str(target_mem_map(cur_target));
+	print_str("\n");
+}
 
 static struct word dict_base_dummy_word[1] = { MKWORD(0, 0, "", 0), };
 static const struct word custom_dict[] = {
@@ -552,6 +557,7 @@ static const struct word custom_dict[] = {
 	MKWORD(custom_dict,		__COUNTER__,	"?regs",	do_read_registers),
 	MKWORD(custom_dict,		__COUNTER__,	"t@",		do_target_fetch),
 	MKWORD(custom_dict,		__COUNTER__,	"step",		do_target_single_step),
+	MKWORD(custom_dict,		__COUNTER__,	"?target-mem-map",		do_question_target_mem_map),
 
 }, * custom_dict_start = custom_dict + __COUNTER__;
 
