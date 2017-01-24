@@ -64,6 +64,38 @@ void gdb_if_putchar(unsigned char c, int flush)
 	}
 }
 
+void gdb_if_flush(void)
+{
+	/* Refuse to send if USB isn't configured, and
+	 * don't bother if nobody's listening */
+	if((cdcacm_get_config() != 1) /*|| !cdcacm_get_dtr()*/) {
+		count_in = 0;
+		return;
+	}
+	while(usbd_ep_write_packet(usbdev, CDCACM_GDB_ENDPOINT,
+				buffer_in, count_in) <= 0);
+
+	if (count_in == CDCACM_PACKET_SIZE) {
+		/* We need to send an empty packet for some hosts
+		 * to accept this as a complete transfer. */
+		/* libopencm3 needs a change for us to confirm when
+		 * that transfer is complete, so we just send a packet
+		 * containing a null byte for now.
+		 */
+		while (usbd_ep_write_packet(usbdev, CDCACM_GDB_ENDPOINT,
+					"\0", 1) <= 0);
+	}
+
+	count_in = 0;
+}
+
+void gdb_if_putchar_single(unsigned char c)
+{
+	buffer_in[count_in++] = c;
+	if(count_in == CDCACM_PACKET_SIZE)
+		gdb_if_flush();
+}
+
 #ifdef STM32F4
 void gdb_usb_out_cb(usbd_device *dev, uint8_t ep)
 {
@@ -101,7 +133,7 @@ unsigned char gdb_if_getchar(void)
 {
 
 	while (!(out_ptr < count_out)) {
-		/* Detach if port closed */
+		/* detach if port closed */
 		if (!cdcacm_get_dtr())
 			return 0x04;
 
@@ -110,6 +142,17 @@ unsigned char gdb_if_getchar(void)
 
 	return buffer_out[out_ptr++];
 }
+
+unsigned char gdb_if_getchar_single(void)
+{
+
+	while (!(out_ptr < count_out)) {
+		gdb_if_update_buf();
+	}
+
+	return buffer_out[out_ptr++];
+}
+
 
 unsigned char gdb_if_getchar_to(int timeout)
 {

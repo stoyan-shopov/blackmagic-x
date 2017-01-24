@@ -34,6 +34,8 @@
 #include "command.h"
 #include "crc32.h"
 #include "morse.h"
+#include "engine.h"
+#include "sf-arch.h"
 
 enum gdb_signal {
 	GDB_SIGINT = 2,
@@ -91,11 +93,31 @@ static struct target_controller gdb_controller = {
 	.system = hostio_system,
 };
 
+int sfgetc(void)
+{
+	return gdb_if_getchar_single();
+}
+
+int sfputc(int c)
+{
+	gdb_if_putchar_single(c);
+	return 0;
+}
+
+int sfsync(void)
+{
+	gdb_if_flush();
+	return 0;
+}
+
 int gdb_main_loop(struct target_controller *tc, bool in_syscall)
 {
 	int size;
 	bool single_step = false;
 
+	while(1)sf_reset(),do_quit();
+
+	DEBUG("Entring GDB protocol main loop\n");
 	/* GDB protocol main loop */
 	while(1) {
 		SET_IDLE_STATE(1);
