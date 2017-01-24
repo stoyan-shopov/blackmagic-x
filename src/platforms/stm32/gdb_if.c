@@ -30,7 +30,7 @@ static uint32_t count_out;
 static uint32_t count_in;
 static uint32_t out_ptr;
 static uint8_t buffer_out[CDCACM_PACKET_SIZE];
-static uint8_t buffer_in[CDCACM_PACKET_SIZE];
+static uint8_t buffer_in[CDCACM_PACKET_SIZE - /* workaround libopencm3 limitations on short packet transfer */ 1];
 #ifdef STM32F4
 static volatile uint32_t count_new;
 static uint8_t double_buffer_out[CDCACM_PACKET_SIZE];
@@ -39,7 +39,7 @@ static uint8_t double_buffer_out[CDCACM_PACKET_SIZE];
 void gdb_if_putchar(unsigned char c, int flush)
 {
 	buffer_in[count_in++] = c;
-	if(flush || (count_in == CDCACM_PACKET_SIZE)) {
+	if(flush || (count_in == sizeof buffer_in)) {
 		/* Refuse to send if USB isn't configured, and
 		 * don't bother if nobody's listening */
 		if((cdcacm_get_config() != 1) || !cdcacm_get_dtr()) {
@@ -92,7 +92,7 @@ void gdb_if_flush(void)
 void gdb_if_putchar_single(unsigned char c)
 {
 	buffer_in[count_in++] = c;
-	if(count_in == CDCACM_PACKET_SIZE)
+	if(count_in == sizeof buffer_in)
 		gdb_if_flush();
 }
 
