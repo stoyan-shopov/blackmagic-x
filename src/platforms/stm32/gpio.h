@@ -23,10 +23,10 @@
 #include <libopencm3/cm3/common.h>
 
 #ifndef STM32F4
-#	include <libopencm3/stm32/f1/memorymap.h>
+#	include <libopencm3/stm32/f1/memorymap.hxx>
 #	include <libopencm3/stm32/f1/gpio.h>
 #else
-#	include <libopencm3/stm32/f4/memorymap.h>
+#	include <libopencm3/stm32/f4/memorymap.hxx>
 #	include <libopencm3/stm32/f4/gpio.h>
 #endif
 

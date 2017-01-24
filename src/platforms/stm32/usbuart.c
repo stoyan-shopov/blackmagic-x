@@ -46,6 +46,14 @@ static void usbuart_run(void);
 
 void usbuart_init(void)
 {
+#if XXX
+#if defined(BLACKMAGIC)
+	/* On mini hardware, UART and SWD share connector pins.
+	 * Don't enable UART if we're being debugged. */
+	if ((platform_hwversion() == 1) && (SCS_DEMCR & SCS_DEMCR_TRCENA))
+		return;
+#endif
+
 	rcc_periph_clock_enable(USBUSART_CLK);
 
 	UART_PIN_SETUP();
@@ -82,6 +90,7 @@ void usbuart_init(void)
 
 	/* turn the timer on */
 	timer_enable_counter(USBUSART_TIM);
+#endif
 }
 
 /*
@@ -131,6 +140,7 @@ static void usbuart_run(void)
 
 void usbuart_set_line_coding(struct usb_cdc_line_coding *coding)
 {
+#if XXX
 	usart_set_baudrate(USBUSART, coding->dwDTERate);
 
 	if (coding->bParityType)
@@ -161,6 +171,7 @@ void usbuart_set_line_coding(struct usb_cdc_line_coding *coding)
 		usart_set_parity(USBUSART, USART_PARITY_EVEN);
 		break;
 	}
+#endif
 }
 
 void usbuart_usb_out_cb(usbd_device *dev, uint8_t ep)
@@ -215,6 +226,7 @@ void usbuart_usb_in_cb(usbd_device *dev, uint8_t ep)
  */
 void USBUSART_ISR(void)
 {
+#if XXX
 	uint32_t err = USART_SR(USBUSART);
 	char c = usart_recv(USBUSART);
 	if (err & (USART_SR_ORE | USART_SR_FE))
@@ -240,13 +252,16 @@ void USBUSART_ISR(void)
 		/* enable deferred processing if we put data in the FIFO */
 		timer_enable_irq(USBUSART_TIM, TIM_DIER_UIE);
 	}
+#endif
 }
 
 void USBUSART_TIM_ISR(void)
 {
+#if 0
 	/* need to clear timer update event */
 	timer_clear_flag(USBUSART_TIM, TIM_SR_UIF);
 
 	/* process FIFO */
 	usbuart_run();
+#endif
 }

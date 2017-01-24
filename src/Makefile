@@ -1,4 +1,4 @@
-PROBE_HOST ?= vx
+PROBE_HOST ?= vx-stm32f070
 PLATFORM_DIR = platforms/$(PROBE_HOST)
 VPATH += $(PLATFORM_DIR) platforms/common target
 ENABLE_DEBUG ?=
