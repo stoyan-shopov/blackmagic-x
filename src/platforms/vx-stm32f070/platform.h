@@ -28,9 +28,8 @@
 #define PLATFORM_HAS_DEBUG
 #define USBUART_DEBUG
 extern bool debug_bmp;
-void usbuart_debug_outf(const char *fmt, ...);
 
-#define DEBUG(...) if (debug_bmp) {usbuart_debug_outf("bmp: ");usbuart_debug_outf(__VA_ARGS__);}
+//#define DEBUG(...) if (debug_bmp) {usbuart_debug_write("bmp: ");usbuart_debug_write(__VA_ARGS__);}
 
 
 #include "timing.h"
