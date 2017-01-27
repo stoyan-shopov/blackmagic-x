@@ -535,13 +535,47 @@ static void do_target_single_step(void)
 target_addr watch;
 enum target_halt_reason reason;
 
-	target_halt_resume(cur_target, true);
-	SET_RUN_STATE(1);
+	if (cur_target)
+	{
+		target_halt_resume(cur_target, true);
+		SET_RUN_STATE(1);
 
-	/* Wait for target halt */
-	while(!(reason = target_halt_poll(cur_target, &watch)));
-	SET_RUN_STATE(0);
-	sf_push(reason);
+		/* Wait for target halt */
+		while(!(reason = target_halt_poll(cur_target, &watch)));
+		SET_RUN_STATE(0);
+		sf_push(reason);
+	}
+	else
+	{
+		print_str("target not connected\n");
+	}
+}
+static void do_target_memory_dump(void)
+{
+uint32_t len = sf_pop(), address = sf_pop();
+	if (!cur_target)
+	{
+		print_str("target not connected\n");
+		return;
+	}
+	else
+	{
+		union
+		{
+			uint32_t	idata[15];
+			uint8_t		data[0];
+		} buf;
+		int i, x;
+		while (len)
+		{
+			x = ((len > sizeof buf) ? sizeof buf : len);
+			/*! \todo	handle errors here */
+			target_mem_read(cur_target, buf.idata, address, x);
+			for (i = 0; i < x; gdb_if_putchar_single(buf.data[i ++]));
+			len -= x;
+			address += x;
+		}
+	}
 }
 static void do_question_target_mem_map(void)
 {
@@ -558,6 +592,7 @@ static const struct word custom_dict[] = {
 	MKWORD(custom_dict,		__COUNTER__,	"t@",		do_target_fetch),
 	MKWORD(custom_dict,		__COUNTER__,	"step",		do_target_single_step),
 	MKWORD(custom_dict,		__COUNTER__,	"?target-mem-map",		do_question_target_mem_map),
+	MKWORD(custom_dict,		__COUNTER__,	"target-dump",		do_target_memory_dump),
 
 }, * custom_dict_start = custom_dict + __COUNTER__;
 
