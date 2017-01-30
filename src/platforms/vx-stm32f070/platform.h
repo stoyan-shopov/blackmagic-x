@@ -102,6 +102,7 @@ static inline int platform_hwversion(void) { return 0; }
 #define LED_PORT_UART	GPIOA
 #define LED_UART	GPIO0
 
+#if 0
 #define TMS_SET_MODE() \
 	gpio_mode_setup(TMS_PORT, GPIO_MODE_OUTPUT, \
 	              GPIO_PUPD_NONE, TMS_PIN); \
@@ -113,6 +114,11 @@ static inline int platform_hwversion(void) { return 0; }
 	gpio_mode_setup(SWDIO_PORT, GPIO_MODE_OUTPUT, \
 	              GPIO_PUPD_NONE, SWDIO_PIN); \
 	gpio_set_output_options(SWDIO_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_HIGH, SWDIO_PIN);
+#endif
+#define TMS_SET_MODE() while(1)
+#define SWDIO_MODE_FLOAT() do { GPIOA_MODER &=~ (0b11 << (5 * 2)); GPIOA_PUPDR &=~ (0b11 << (5 * 2)); } while(0)
+#define SWDIO_MODE_DRIVE() do { GPIOA_MODER &=~ (0b11 << (5 * 2)); GPIOA_PUPDR &=~ (0b11 << (5 * 2)); \
+	GPIOA_MODER |= (0b01 << (5 * 2)); GPIOA_OTYPER &=~ 1 << 5; GPIOA_OSPEEDR |= 0b11 << (5 * 2); } while(0)
 
 #define UART_PIN_SETUP() \
 	gpio_mode_setup(USBUSART_PORT, GPIO_MODE_AF, GPIO_PUPD_NONE, USBUSART_TX_PIN); \

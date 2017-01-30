@@ -161,7 +161,7 @@ static uint32_t adiv5_swdp_low_access(ADIv5_DP_t *dp, uint8_t RnW,
 	}
 
 	/* REMOVE THIS */
-	swdptap_seq_out(0, 8);
+	//swdptap_seq_out(0, 8);
 
 	return response;
 }

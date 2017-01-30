@@ -208,7 +208,7 @@ static inline void swdptap_turnaround(uint8_t dir)
 	if(dir == olddir) return;
 	olddir = dir;
 
-	DEBUG("%s", dir ? "\n-> ":"\n<- ");
+	//DEBUG("%s", dir ? "\n-> ":"\n<- ");
 
 	if(dir)
 		SWDIO_MODE_FLOAT();
@@ -232,10 +232,10 @@ static inline int swdptap_bit_in_vx(void)
 uint32_t swdptap_seq_in(int ticks)
 {
 	counters.seq_in ++;
+	swdptap_turnaround(1);
 	if (/* ;-) */ ticks == 3)
 	{
 		int res = 0;
-		swdptap_turnaround(1);
 		if (SWDIO_READ)
 			res |= 1;
 		SWCLK_PULSE
@@ -253,8 +253,9 @@ uint32_t swdptap_seq_in(int ticks)
 		uint32_t ret = 0;
 
 		while (ticks--) {
-			if (swdptap_bit_in_vx())
+			if (SWDIO_READ)
 				ret |= index;
+			SWCLK_PULSE
 			index <<= 1;
 		}
 
@@ -284,354 +285,354 @@ static uint32_t swdptap_seq_in_32bits_optimized_asm(struct sw_driving_data * sw)
 
 	/* read bit */
 	asm("ldr	r2,	[r0]");
+	/* pulse clock */
+	asm("str	r4,	[r3]");
+	asm("str	r5,	[r3]");
 	asm("tst	r2,	r1");
 	asm("beq	2f");
 	asm("orr	r6,	r7");
 	asm("2:");
-	/* pulse clock */
-	asm("str	r4,	[r3]");
-	asm("str	r5,	[r3]");
 	asm("lsl	r7,	r7,	#1");
 
 	/* read bit */
 	asm("ldr	r2,	[r0]");
+	/* pulse clock */
+	asm("str	r4,	[r3]");
+	asm("str	r5,	[r3]");
 	asm("tst	r2,	r1");
 	asm("beq	2f");
 	asm("orr	r6,	r7");
 	asm("2:");
-	/* pulse clock */
-	asm("str	r4,	[r3]");
-	asm("str	r5,	[r3]");
 	asm("lsl	r7,	r7,	#1");
 
 	/* read bit */
 	asm("ldr	r2,	[r0]");
+	/* pulse clock */
+	asm("str	r4,	[r3]");
+	asm("str	r5,	[r3]");
 	asm("tst	r2,	r1");
 	asm("beq	2f");
 	asm("orr	r6,	r7");
 	asm("2:");
-	/* pulse clock */
-	asm("str	r4,	[r3]");
-	asm("str	r5,	[r3]");
 	asm("lsl	r7,	r7,	#1");
 
 	/* read bit */
 	asm("ldr	r2,	[r0]");
+	/* pulse clock */
+	asm("str	r4,	[r3]");
+	asm("str	r5,	[r3]");
 	asm("tst	r2,	r1");
 	asm("beq	2f");
 	asm("orr	r6,	r7");
 	asm("2:");
-	/* pulse clock */
-	asm("str	r4,	[r3]");
-	asm("str	r5,	[r3]");
 	asm("lsl	r7,	r7,	#1");
 
 	/* read bit */
 	asm("ldr	r2,	[r0]");
+	/* pulse clock */
+	asm("str	r4,	[r3]");
+	asm("str	r5,	[r3]");
 	asm("tst	r2,	r1");
 	asm("beq	2f");
 	asm("orr	r6,	r7");
 	asm("2:");
-	/* pulse clock */
-	asm("str	r4,	[r3]");
-	asm("str	r5,	[r3]");
 	asm("lsl	r7,	r7,	#1");
 
 	/* read bit */
 	asm("ldr	r2,	[r0]");
+	/* pulse clock */
+	asm("str	r4,	[r3]");
+	asm("str	r5,	[r3]");
 	asm("tst	r2,	r1");
 	asm("beq	2f");
 	asm("orr	r6,	r7");
 	asm("2:");
-	/* pulse clock */
-	asm("str	r4,	[r3]");
-	asm("str	r5,	[r3]");
 	asm("lsl	r7,	r7,	#1");
 
 	/* read bit */
 	asm("ldr	r2,	[r0]");
+	/* pulse clock */
+	asm("str	r4,	[r3]");
+	asm("str	r5,	[r3]");
 	asm("tst	r2,	r1");
 	asm("beq	2f");
 	asm("orr	r6,	r7");
 	asm("2:");
-	/* pulse clock */
-	asm("str	r4,	[r3]");
-	asm("str	r5,	[r3]");
 	asm("lsl	r7,	r7,	#1");
 
 	/* read bit */
 	asm("ldr	r2,	[r0]");
+	/* pulse clock */
+	asm("str	r4,	[r3]");
+	asm("str	r5,	[r3]");
 	asm("tst	r2,	r1");
 	asm("beq	2f");
 	asm("orr	r6,	r7");
 	asm("2:");
-	/* pulse clock */
-	asm("str	r4,	[r3]");
-	asm("str	r5,	[r3]");
 	asm("lsl	r7,	r7,	#1");
 
 	/* read bit */
 	asm("ldr	r2,	[r0]");
+	/* pulse clock */
+	asm("str	r4,	[r3]");
+	asm("str	r5,	[r3]");
 	asm("tst	r2,	r1");
 	asm("beq	2f");
 	asm("orr	r6,	r7");
 	asm("2:");
-	/* pulse clock */
-	asm("str	r4,	[r3]");
-	asm("str	r5,	[r3]");
 	asm("lsl	r7,	r7,	#1");
 
 	/* read bit */
 	asm("ldr	r2,	[r0]");
+	/* pulse clock */
+	asm("str	r4,	[r3]");
+	asm("str	r5,	[r3]");
 	asm("tst	r2,	r1");
 	asm("beq	2f");
 	asm("orr	r6,	r7");
 	asm("2:");
-	/* pulse clock */
-	asm("str	r4,	[r3]");
-	asm("str	r5,	[r3]");
 	asm("lsl	r7,	r7,	#1");
 
 	/* read bit */
 	asm("ldr	r2,	[r0]");
+	/* pulse clock */
+	asm("str	r4,	[r3]");
+	asm("str	r5,	[r3]");
 	asm("tst	r2,	r1");
 	asm("beq	2f");
 	asm("orr	r6,	r7");
 	asm("2:");
-	/* pulse clock */
-	asm("str	r4,	[r3]");
-	asm("str	r5,	[r3]");
 	asm("lsl	r7,	r7,	#1");
 
 	/* read bit */
 	asm("ldr	r2,	[r0]");
+	/* pulse clock */
+	asm("str	r4,	[r3]");
+	asm("str	r5,	[r3]");
 	asm("tst	r2,	r1");
 	asm("beq	2f");
 	asm("orr	r6,	r7");
 	asm("2:");
-	/* pulse clock */
-	asm("str	r4,	[r3]");
-	asm("str	r5,	[r3]");
 	asm("lsl	r7,	r7,	#1");
 
 	/* read bit */
 	asm("ldr	r2,	[r0]");
+	/* pulse clock */
+	asm("str	r4,	[r3]");
+	asm("str	r5,	[r3]");
 	asm("tst	r2,	r1");
 	asm("beq	2f");
 	asm("orr	r6,	r7");
 	asm("2:");
-	/* pulse clock */
-	asm("str	r4,	[r3]");
-	asm("str	r5,	[r3]");
 	asm("lsl	r7,	r7,	#1");
 
 	/* read bit */
 	asm("ldr	r2,	[r0]");
+	/* pulse clock */
+	asm("str	r4,	[r3]");
+	asm("str	r5,	[r3]");
 	asm("tst	r2,	r1");
 	asm("beq	2f");
 	asm("orr	r6,	r7");
 	asm("2:");
-	/* pulse clock */
-	asm("str	r4,	[r3]");
-	asm("str	r5,	[r3]");
 	asm("lsl	r7,	r7,	#1");
 
 	/* read bit */
 	asm("ldr	r2,	[r0]");
+	/* pulse clock */
+	asm("str	r4,	[r3]");
+	asm("str	r5,	[r3]");
 	asm("tst	r2,	r1");
 	asm("beq	2f");
 	asm("orr	r6,	r7");
 	asm("2:");
-	/* pulse clock */
-	asm("str	r4,	[r3]");
-	asm("str	r5,	[r3]");
 	asm("lsl	r7,	r7,	#1");
 
 	/* read bit */
 	asm("ldr	r2,	[r0]");
+	/* pulse clock */
+	asm("str	r4,	[r3]");
+	asm("str	r5,	[r3]");
 	asm("tst	r2,	r1");
 	asm("beq	2f");
 	asm("orr	r6,	r7");
 	asm("2:");
-	/* pulse clock */
-	asm("str	r4,	[r3]");
-	asm("str	r5,	[r3]");
 	asm("lsl	r7,	r7,	#1");
 
 	/* read bit */
 	asm("ldr	r2,	[r0]");
+	/* pulse clock */
+	asm("str	r4,	[r3]");
+	asm("str	r5,	[r3]");
 	asm("tst	r2,	r1");
 	asm("beq	2f");
 	asm("orr	r6,	r7");
 	asm("2:");
-	/* pulse clock */
-	asm("str	r4,	[r3]");
-	asm("str	r5,	[r3]");
 	asm("lsl	r7,	r7,	#1");
 
 	/* read bit */
 	asm("ldr	r2,	[r0]");
+	/* pulse clock */
+	asm("str	r4,	[r3]");
+	asm("str	r5,	[r3]");
 	asm("tst	r2,	r1");
 	asm("beq	2f");
 	asm("orr	r6,	r7");
 	asm("2:");
-	/* pulse clock */
-	asm("str	r4,	[r3]");
-	asm("str	r5,	[r3]");
 	asm("lsl	r7,	r7,	#1");
 
 	/* read bit */
 	asm("ldr	r2,	[r0]");
+	/* pulse clock */
+	asm("str	r4,	[r3]");
+	asm("str	r5,	[r3]");
 	asm("tst	r2,	r1");
 	asm("beq	2f");
 	asm("orr	r6,	r7");
 	asm("2:");
-	/* pulse clock */
-	asm("str	r4,	[r3]");
-	asm("str	r5,	[r3]");
 	asm("lsl	r7,	r7,	#1");
 
 	/* read bit */
 	asm("ldr	r2,	[r0]");
+	/* pulse clock */
+	asm("str	r4,	[r3]");
+	asm("str	r5,	[r3]");
 	asm("tst	r2,	r1");
 	asm("beq	2f");
 	asm("orr	r6,	r7");
 	asm("2:");
-	/* pulse clock */
-	asm("str	r4,	[r3]");
-	asm("str	r5,	[r3]");
 	asm("lsl	r7,	r7,	#1");
 
 	/* read bit */
 	asm("ldr	r2,	[r0]");
+	/* pulse clock */
+	asm("str	r4,	[r3]");
+	asm("str	r5,	[r3]");
 	asm("tst	r2,	r1");
 	asm("beq	2f");
 	asm("orr	r6,	r7");
 	asm("2:");
-	/* pulse clock */
-	asm("str	r4,	[r3]");
-	asm("str	r5,	[r3]");
 	asm("lsl	r7,	r7,	#1");
 
 	/* read bit */
 	asm("ldr	r2,	[r0]");
+	/* pulse clock */
+	asm("str	r4,	[r3]");
+	asm("str	r5,	[r3]");
 	asm("tst	r2,	r1");
 	asm("beq	2f");
 	asm("orr	r6,	r7");
 	asm("2:");
-	/* pulse clock */
-	asm("str	r4,	[r3]");
-	asm("str	r5,	[r3]");
 	asm("lsl	r7,	r7,	#1");
 
 	/* read bit */
 	asm("ldr	r2,	[r0]");
+	/* pulse clock */
+	asm("str	r4,	[r3]");
+	asm("str	r5,	[r3]");
 	asm("tst	r2,	r1");
 	asm("beq	2f");
 	asm("orr	r6,	r7");
 	asm("2:");
-	/* pulse clock */
-	asm("str	r4,	[r3]");
-	asm("str	r5,	[r3]");
 	asm("lsl	r7,	r7,	#1");
 
 	/* read bit */
 	asm("ldr	r2,	[r0]");
+	/* pulse clock */
+	asm("str	r4,	[r3]");
+	asm("str	r5,	[r3]");
 	asm("tst	r2,	r1");
 	asm("beq	2f");
 	asm("orr	r6,	r7");
 	asm("2:");
-	/* pulse clock */
-	asm("str	r4,	[r3]");
-	asm("str	r5,	[r3]");
 	asm("lsl	r7,	r7,	#1");
 
 	/* read bit */
 	asm("ldr	r2,	[r0]");
+	/* pulse clock */
+	asm("str	r4,	[r3]");
+	asm("str	r5,	[r3]");
 	asm("tst	r2,	r1");
 	asm("beq	2f");
 	asm("orr	r6,	r7");
 	asm("2:");
-	/* pulse clock */
-	asm("str	r4,	[r3]");
-	asm("str	r5,	[r3]");
 	asm("lsl	r7,	r7,	#1");
 
 	/* read bit */
 	asm("ldr	r2,	[r0]");
+	/* pulse clock */
+	asm("str	r4,	[r3]");
+	asm("str	r5,	[r3]");
 	asm("tst	r2,	r1");
 	asm("beq	2f");
 	asm("orr	r6,	r7");
 	asm("2:");
-	/* pulse clock */
-	asm("str	r4,	[r3]");
-	asm("str	r5,	[r3]");
 	asm("lsl	r7,	r7,	#1");
 
 	/* read bit */
 	asm("ldr	r2,	[r0]");
+	/* pulse clock */
+	asm("str	r4,	[r3]");
+	asm("str	r5,	[r3]");
 	asm("tst	r2,	r1");
 	asm("beq	2f");
 	asm("orr	r6,	r7");
 	asm("2:");
-	/* pulse clock */
-	asm("str	r4,	[r3]");
-	asm("str	r5,	[r3]");
 	asm("lsl	r7,	r7,	#1");
 
 	/* read bit */
 	asm("ldr	r2,	[r0]");
+	/* pulse clock */
+	asm("str	r4,	[r3]");
+	asm("str	r5,	[r3]");
 	asm("tst	r2,	r1");
 	asm("beq	2f");
 	asm("orr	r6,	r7");
 	asm("2:");
-	/* pulse clock */
-	asm("str	r4,	[r3]");
-	asm("str	r5,	[r3]");
 	asm("lsl	r7,	r7,	#1");
 
 	/* read bit */
 	asm("ldr	r2,	[r0]");
+	/* pulse clock */
+	asm("str	r4,	[r3]");
+	asm("str	r5,	[r3]");
 	asm("tst	r2,	r1");
 	asm("beq	2f");
 	asm("orr	r6,	r7");
 	asm("2:");
-	/* pulse clock */
-	asm("str	r4,	[r3]");
-	asm("str	r5,	[r3]");
 	asm("lsl	r7,	r7,	#1");
 
 	/* read bit */
 	asm("ldr	r2,	[r0]");
+	/* pulse clock */
+	asm("str	r4,	[r3]");
+	asm("str	r5,	[r3]");
 	asm("tst	r2,	r1");
 	asm("beq	2f");
 	asm("orr	r6,	r7");
 	asm("2:");
-	/* pulse clock */
-	asm("str	r4,	[r3]");
-	asm("str	r5,	[r3]");
 	asm("lsl	r7,	r7,	#1");
 
 	/* read bit */
 	asm("ldr	r2,	[r0]");
+	/* pulse clock */
+	asm("str	r4,	[r3]");
+	asm("str	r5,	[r3]");
 	asm("tst	r2,	r1");
 	asm("beq	2f");
 	asm("orr	r6,	r7");
 	asm("2:");
-	/* pulse clock */
-	asm("str	r4,	[r3]");
-	asm("str	r5,	[r3]");
 	asm("lsl	r7,	r7,	#1");
 
 	/* read bit */
 	asm("ldr	r2,	[r0]");
+	/* pulse clock */
+	asm("str	r4,	[r3]");
+	asm("str	r5,	[r3]");
 	asm("tst	r2,	r1");
 	asm("beq	2f");
 	asm("orr	r6,	r7");
 	asm("2:");
-	/* pulse clock */
-	asm("str	r4,	[r3]");
-	asm("str	r5,	[r3]");
 
 	asm("mov	r0,	r6");
 	asm("pop	{ r4, r5, r6, r7, pc }");
@@ -684,32 +685,36 @@ uint32_t x = 0, cnt = 1;
 		x ^= x >> 2;
 		x ^= x >> 1;
 		
-		if (swdptap_bit_in_vx())
+		if (SWDIO_READ)
 			x ^= 1;
+		SWCLK_PULSE
 
 		return x & 1;
 }
 
 bool swdptap_seq_in_parity(uint32_t *ret, int ticks)
 {
+uint32_t x;
 	if (ticks == 32)
 		return swdptap_seq_in_parity_32bits_optimized(ret);
 	else
 	{
 		uint32_t index = 1;
 		uint32_t parity = 0;
-		*ret = 0;
+		x = 0;
+		swdptap_turnaround(1);
 		counters.seq_in_parity ++;
 
 		while (ticks--) {
-			if (swdptap_bit_in_vx()) {
-				*ret |= index;
-				parity ^= 1;
-			}
+			if (SWDIO_READ)
+				x ^= index, parity ^= 1;
+			SWCLK_PULSE
 			index <<= 1;
 		}
-		if (swdptap_bit_in_vx())
+		if (SWDIO_READ)
 			parity ^= 1;
+		SWCLK_PULSE
+		* ret = x;
 
 		return parity;
 	}
