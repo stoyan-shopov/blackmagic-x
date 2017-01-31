@@ -395,9 +395,9 @@ handle_q_packet(char *packet, int len)
 static void
 handle_v_packet(char *packet, int plen)
 {
+static uint8_t flash_mode = 0;
 	unsigned long addr, len;
 	int bin;
-	static uint8_t flash_mode = 0;
 
 	if (sscanf(packet, "vAttach;%08lx", &addr) == 1) {
 		/* Attach to remote target processor */
@@ -577,6 +577,49 @@ uint32_t len = sf_pop(), address = sf_pop();
 		}
 	}
 }
+static void do_flash_erase(void)
+{
+uint32_t len = sf_pop(), addr = sf_pop();
+	if(!cur_target)
+	{
+		print_str("target not connected\n");
+		return;
+	}
+
+	/* Reset target if first flash command! */
+	/* This saves us if we're interrupted in IRQ context */
+	target_reset(cur_target);
+
+	if(target_flash_erase(cur_target, addr, len) == 0 && target_flash_done(cur_target) == 0)
+		print_str("flash erased successfully");
+	else
+		print_str("error erasing flash");
+}
+static void do_flash_write(void)
+{
+uint32_t len = sf_pop(), addr = sf_pop(), x;
+uint8_t buf[256];
+int result = 0, i;
+	if(!cur_target)
+	{
+		print_str("target not connected\n");
+		return;
+	}
+	while (len)
+	{
+		x = (len > sizeof buf) ? sizeof buf : len;
+		for (i = 0; i < x; buf[i ++] = gdb_if_getchar_single());
+		result |= target_flash_write(cur_target, addr, buf, x);
+		addr += x;
+		len -= x;
+	}
+	result |= target_flash_done(cur_target);
+	if (!result)
+		print_str("flash written successfully");
+	else
+		print_str("error writing flash");
+}
+
 static void do_question_target_mem_map(void)
 {
 	print_str(target_mem_map(cur_target));
@@ -593,6 +636,8 @@ static const struct word custom_dict[] = {
 	MKWORD(custom_dict,		__COUNTER__,	"step",		do_target_single_step),
 	MKWORD(custom_dict,		__COUNTER__,	"?target-mem-map",		do_question_target_mem_map),
 	MKWORD(custom_dict,		__COUNTER__,	"target-dump",		do_target_memory_dump),
+	MKWORD(custom_dict,		__COUNTER__,	"flash-erase",		do_flash_erase),
+	MKWORD(custom_dict,		__COUNTER__,	"flash-write",		do_flash_write),
 
 }, * custom_dict_start = custom_dict + __COUNTER__;
 
