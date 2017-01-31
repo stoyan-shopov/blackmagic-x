@@ -625,6 +625,16 @@ static void do_question_target_mem_map(void)
 	print_str(target_mem_map(cur_target));
 	print_str("\n");
 }
+static void do_target_reset(void)
+{
+	if(cur_target)
+		target_reset(cur_target);
+	else if(last_target) {
+		cur_target = target_attach(last_target,
+		                           &gdb_controller);
+		target_reset(cur_target);
+	}
+}
 
 static struct word dict_base_dummy_word[1] = { MKWORD(0, 0, "", 0), };
 static const struct word custom_dict[] = {
@@ -636,6 +646,7 @@ static const struct word custom_dict[] = {
 	MKWORD(custom_dict,		__COUNTER__,	"step",		do_target_single_step),
 	MKWORD(custom_dict,		__COUNTER__,	"?target-mem-map",		do_question_target_mem_map),
 	MKWORD(custom_dict,		__COUNTER__,	"target-dump",		do_target_memory_dump),
+	MKWORD(custom_dict,		__COUNTER__,	"target-reset",		do_target_reset),
 	MKWORD(custom_dict,		__COUNTER__,	"flash-erase",		do_flash_erase),
 	MKWORD(custom_dict,		__COUNTER__,	"flash-write",		do_flash_write),
 
