@@ -117,7 +117,7 @@ int gdb_main_loop(struct target_controller *tc, bool in_syscall)
 
 	if(is_sforth_mode_active())while(1)sf_reset(),do_quit();
 
-	DEBUG("Entring GDB protocol main loop\n");
+	DEBUG("Entering GDB protocol main loop\n");
 	/* GDB protocol main loop */
 	while(1) {
 		SET_IDLE_STATE(1);
