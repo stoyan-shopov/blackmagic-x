@@ -550,6 +550,39 @@ enum target_halt_reason reason;
 		print_str("target not connected\n");
 	}
 }
+static void do_target_resume(void)
+{
+	if (cur_target)
+	{
+		target_halt_resume(cur_target, false);
+		SET_RUN_STATE(1);
+		print_str("target running\n");
+	}
+	else
+		print_str("target not connected\n");
+}
+static void do_quesstion_target_run_state(void)
+{
+target_addr watch;
+	if (cur_target)
+	{
+		sf_push(target_halt_poll(cur_target, &watch));
+		if (!sf_top())
+			SET_RUN_STATE(0);
+	}
+	else
+		print_str("target not connected\n");
+}
+static void do_target_request_halt(void)
+{
+	if (cur_target)
+	{
+		target_halt_request(cur_target);
+		print_str("requested target halt\n");
+	}
+	else
+		print_str("target not connected\n");
+}
 static void do_target_memory_dump(void)
 {
 uint32_t len = sf_pop(), address = sf_pop();
@@ -622,6 +655,11 @@ int result = 0, i;
 
 static void do_question_target_mem_map(void)
 {
+	if(!cur_target)
+	{
+		print_str("target not connected\n");
+		return;
+	}
 	print_str(target_mem_map(cur_target));
 	print_str("\n");
 }
@@ -644,6 +682,9 @@ static const struct word custom_dict[] = {
 	MKWORD(custom_dict,		__COUNTER__,	"?regs",	do_read_registers),
 	MKWORD(custom_dict,		__COUNTER__,	"t@",		do_target_fetch),
 	MKWORD(custom_dict,		__COUNTER__,	"step",		do_target_single_step),
+	MKWORD(custom_dict,		__COUNTER__,	"target-resume",		do_target_resume),
+	MKWORD(custom_dict,		__COUNTER__,	"?target-run-state",		do_quesstion_target_run_state),
+	MKWORD(custom_dict,		__COUNTER__,	"target-request-halt",		do_target_request_halt),
 	MKWORD(custom_dict,		__COUNTER__,	"?target-mem-map",		do_question_target_mem_map),
 	MKWORD(custom_dict,		__COUNTER__,	"target-dump",		do_target_memory_dump),
 	MKWORD(custom_dict,		__COUNTER__,	"target-reset",		do_target_reset),
