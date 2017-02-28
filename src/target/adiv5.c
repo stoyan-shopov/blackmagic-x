@@ -509,21 +509,45 @@ adiv5_mem_read(ADIv5_AP_t *ap, void *dest, uint32_t src, size_t len)
 	if (len == 0)
 		return;
 
-	len >>= align;
-	ap_mem_access_setup(ap, src, align);
-	adiv5_dp_low_access(ap->dp, ADIV5_LOW_READ, ADIV5_AP_DRW, 0);
-	while (--len) {
-		tmp = adiv5_dp_low_access(ap->dp, ADIV5_LOW_READ, ADIV5_AP_DRW, 0);
-		dest = extract(dest, src, tmp, align);
+	if (align == ALIGN_WORD)
+	{
+		len >>= ALIGN_WORD;
+		ap_mem_access_setup(ap, src, ALIGN_WORD);
+		adiv5_dp_low_access(ap->dp, ADIV5_LOW_READ, ADIV5_AP_DRW, 0);
+		while (--len) {
+			tmp = adiv5_dp_low_access(ap->dp, ADIV5_LOW_READ, ADIV5_AP_DRW, 0);
+			* ((uint32_t *) dest) = tmp;
+			dest = dest + 4;
 
-		src += (1 << align);
-		/* Check for 10 bit address overflow */
-		if ((src ^ osrc) & 0xfffffc00) {
-			osrc = src;
-			adiv5_dp_low_access(ap->dp,
-					ADIV5_LOW_WRITE, ADIV5_AP_TAR, src);
-			adiv5_dp_low_access(ap->dp,
-					ADIV5_LOW_READ, ADIV5_AP_DRW, 0);
+			src += 1 << ALIGN_WORD;
+			/* Check for 10 bit address overflow */
+			if ((src ^ osrc) & 0xfffffc00) {
+				osrc = src;
+				adiv5_dp_low_access(ap->dp,
+				                    ADIV5_LOW_WRITE, ADIV5_AP_TAR, src);
+				adiv5_dp_low_access(ap->dp,
+				                    ADIV5_LOW_READ, ADIV5_AP_DRW, 0);
+			}
+		}
+	}
+	else
+	{
+		len >>= align;
+		ap_mem_access_setup(ap, src, align);
+		adiv5_dp_low_access(ap->dp, ADIV5_LOW_READ, ADIV5_AP_DRW, 0);
+		while (--len) {
+			tmp = adiv5_dp_low_access(ap->dp, ADIV5_LOW_READ, ADIV5_AP_DRW, 0);
+			dest = extract(dest, src, tmp, align);
+
+			src += (1 << align);
+			/* Check for 10 bit address overflow */
+			if ((src ^ osrc) & 0xfffffc00) {
+				osrc = src;
+				adiv5_dp_low_access(ap->dp,
+				                    ADIV5_LOW_WRITE, ADIV5_AP_TAR, src);
+				adiv5_dp_low_access(ap->dp,
+				                    ADIV5_LOW_READ, ADIV5_AP_DRW, 0);
+			}
 		}
 	}
 	tmp = adiv5_dp_low_access(ap->dp, ADIV5_LOW_READ, ADIV5_DP_RDBUFF, 0);

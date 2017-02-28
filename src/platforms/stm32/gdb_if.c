@@ -153,6 +153,15 @@ unsigned char gdb_if_getchar_single(void)
 	return buffer_out[out_ptr++];
 }
 
+unsigned char gdb_if_poll_char(void)
+{
+	if (!(out_ptr < count_out)) {
+		gdb_if_update_buf();
+		return -1;
+	}
+
+	return buffer_out[out_ptr++];
+}
 
 unsigned char gdb_if_getchar_to(int timeout)
 {
