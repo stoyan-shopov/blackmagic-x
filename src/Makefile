@@ -8,7 +8,7 @@ MAKEFLAGS += --no-print-dir
 Q := @
 endif
 
-OPT_FLAGS ?= -O2
+OPT_FLAGS = -O3 -gdwarf-4 -finline-functions -fvar-tracking-assignments -fvar-tracking
 
 #CFLAGS += -Wall -Wextra -Wno-char-subscripts\
 #$(OPT_FLAGS) -std=gnu99 -ggdb3 -g3 -gdwarf-4 -fvar-tracking-assignments -fvar-tracking -fdebug-types-section -feliminate-dwarf2-dups -MD \
