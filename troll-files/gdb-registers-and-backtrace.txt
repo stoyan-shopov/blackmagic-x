@@ -1,46 +1,65 @@
-(gdb) bt
-#0  swdptap_seq_out_32bits_optimized_asm (sw=sw@entry=0x8012834 <vx_sw_driving_data>, data=data@entry=50331730) at platforms/vx-stm32f070/platform.c:727
-#1  0x080058ec in swdptap_seq_out (MS=50331730, ticks=32) at platforms/vx-stm32f070/platform.c:1039
-#2  0x080058ec in swdptap_seq_out (MS=50331730, ticks=32) at platforms/vx-stm32f070/platform.c:1039
-#3  0x08005922 in swdptap_seq_out_parity (MS=MS@entry=50331730, ticks=ticks@entry=32) at platforms/vx-stm32f070/platform.c:1065
-#4  0x080008f8 in adiv5_swdp_low_access (dp=0x20002280, RnW=<optimized out>, addr=<optimized out>, value=50331730) at target/adiv5_swdp.c:151
-#5  0x0800014e in adiv5_dp_write (dp=<optimized out>, addr=addr@entry=256, value=value@entry=50331730) at target/adiv5.c:239
-#6  0x08000174 in adiv5_ap_write (ap=ap@entry=0x20002258, addr=addr@entry=256, value=50331730) at target/adiv5.c:601
-#7  0x0800019c in ap_mem_access_setup (ap=ap@entry=0x20002258, addr=addr@entry=3758157296, align=align@entry=ALIGN_WORD) at target/adiv5.c:481
-#8  0x080001ee in adiv5_mem_read (ap=0x20002258, dest=0x20003dbc, src=3758157296, len=1) at target/adiv5.c:515
-#9  0x08001f6e in cortexm_mem_read (t=<optimized out>, dest=<optimized out>, src=<optimized out>, len=<optimized out>) at target/cortexm.c:185
-#10 0x08008538 in target_mem_read32 (t=t@entry=0xffffffff, addr=addr@entry=3758157296) at target/target.c:394
-#11 0x08001b30 in cortexm_halt_poll (t=0xffffffff, watch=0x8005923 <swdptap_seq_out_parity+34>) at target/cortexm.c:480
-#12 0x0800846a in target_halt_poll (t=<optimized out>, watch=watch@entry=0x20003f04) at target/target.c:317
-#13 0x08002e36 in wait_target_halted () at gdb_main.c:514
-#14 0x08002ede in do_target_resume () at gdb_main.c:594
-#15 0x0800a844 in interpret () at sforth/engine.c:440
-#16 0x0800acce in do_quit () at sforth/dictionary.c:1638
-#17 0x08002f5c in gdb_main_loop (tc=0x20003f84, in_syscall=<optimized out>) at gdb_main.c:118
-#18 0x08003502 in gdb_main () at gdb_main.c:494
-#19 0x08004bde in main (argc=<optimized out>, argv=<optimized out>) at main.c:47
 (gdb) info registers
-r0             0x8012834        134293556
-r1             0x3000052        50331730
-r2             0xc003c03        201341955
-r3             0xc003c03        201341955
-r4             0x3000052        50331730
-r5             0x20     32
-r6             0x0      0
-r7             0x3000052        50331730
-r8             0xffffffff       4294967295
-r9             0xffffffff       4294967295
-r10            0xffffffff       4294967295
-r11            0xffffffff       4294967295
-r12            0x3fffffff       1073741823
-sp             0x20003cf8       0x20003cf8
-lr             0x80058ed        134240493
-pc             0x80052ce        0x80052ce <swdptap_seq_out_32bits_optimized_asm+2>
-xpsr           0x1000000        16777216
-MSP            0x20003cf8       536886520
+r0             0x9      9
+r1             0x1      1
+r2             0x1      1
+r3             0x0      0
+r4             0x9      9
+r5             0xa      10
+r6             0x2      2
+r7             0xffffffff       4294967295
+r8             0x1      1
+r9             0x9      9
+r10            0x0      0
+r11            0x1      1
+r12            0x17     23
+sp             0x20003c80       0x20003c80
+lr             0x1      1
+pc             0x800b5fa        0x800b5fa <fib+242>
+xpsr           0x4100000b       1090519051
+MSP            0x20003c80       536886400
 PSP            0xfffffffc       4294967292
 PRIMASK        0x0      0
 BASEPRI        0x0      0
 FAULTMASK      0x0      0
 CONTROL        0x0      0
+(gdb) bt
+#0  fib (n=<optimized out>) at inline-test.c:8
+#1  fib (n=3) at inline-test.c:8
+#2  fib (n=4) at inline-test.c:8
+#3  fib (n=5) at inline-test.c:8
+#4  fib (n=6) at inline-test.c:8
+#5  fib (n=7) at inline-test.c:8
+#6  fib (n=8) at inline-test.c:8
+#7  fib (n=9) at inline-test.c:8
+#8  0x0800b61a in fib (n=10) at inline-test.c:8
+#9  fib (n=<optimized out>) at inline-test.c:8
+#10 fib (n=12) at inline-test.c:8
+#11 fib (n=13) at inline-test.c:8
+#12 fib (n=14) at inline-test.c:8
+#13 fib (n=15) at inline-test.c:8
+#14 fib (n=16) at inline-test.c:8
+#15 fib (n=17) at inline-test.c:8
+#16 fib (n=18) at inline-test.c:8
+#17 0x0800b80a in fib (n=19) at inline-test.c:8
+#18 fib (n=20) at inline-test.c:8
+#19 get_fib () at inline-test.c:14
+#20 0x0800577e in sv_call_handler () at platforms/vx-stm32f070/platform.c:285
+#21 <signal handler called>
+#22 swdptap_seq_in_32bits_optimized_asm (sw=sw@entry=0x8012b40 <vx_sw_driving_data>)
+    at platforms/vx-stm32f070/platform.c:293
+#23 0x08005794 in swdptap_seq_in_parity_32bits_optimized (ret=0x2000228c)
+    at platforms/vx-stm32f070/platform.c:660
+#24 0x08005856 in swdptap_seq_in_parity (ret=ret@entry=0x2000228c, ticks=ticks@entry=32)
+    at platforms/vx-stm32f070/platform.c:713
+#25 0x080009fa in adiv5_swdp_scan () at target/adiv5_swdp.c:68
+---Type <return> to continue, or q <return> to quit---
+#26 0x08000b86 in cmd_swdp_scan () at command.c:199
+#27 0x08000ddc in command_process (t=0x800a829 <interpret+188>,
+    cmd=cmd@entry=0x8010119 "swdp_scan") at command.c:113
+#28 0x08002cf8 in do_swdp_scan () at gdb_main.c:542
+#29 0x0800a828 in interpret () at sforth/engine.c:440
+#30 0x0800aca4 in do_quit () at sforth/dictionary.c:1638
+#31 0x08002f5c in gdb_main_loop (tc=0x20003f84, in_syscall=<optimized out>) at gdb_main.c:118
+#32 0x08003502 in gdb_main () at gdb_main.c:494
+#33 0x08004bde in main (argc=<optimized out>, argv=<optimized out>) at main.c:47
 (gdb)

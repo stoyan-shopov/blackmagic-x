@@ -8,8 +8,6 @@ MAKEFLAGS += --no-print-dir
 Q := @
 endif
 
-OPT_FLAGS = -O3 -gdwarf-4 -finline-functions -fvar-tracking-assignments -fvar-tracking
-
 #CFLAGS += -Wall -Wextra -Wno-char-subscripts\
 #$(OPT_FLAGS) -std=gnu99 -ggdb3 -g3 -gdwarf-4 -fvar-tracking-assignments -fvar-tracking -fdebug-types-section -feliminate-dwarf2-dups -MD \
 #-I. -Iinclude -Iplatforms/common -I$(PLATFORM_DIR)
@@ -76,9 +74,14 @@ include $(PLATFORM_DIR)/Makefile.inc
 
 OBJ = $(SRC:.c=.o)
 
+OBJ += inline.o
+
 blackmagic: include/version.h $(OBJ)
 	@echo "  LD      $@"
 	$(Q)$(CC) -o $@ $(OBJ) $(LDFLAGS)
+
+inline.o: inline-test.c
+	$(CC) -mthumb -mcpu=cortex-m0 -mfloat-abi=soft -mfix-cortex-m3-ldrd -gdwarf-4 -O3 -finline-functions -fno-common -c $< -o $@
 
 %.o:	%.c
 	@echo "  CC      $<"

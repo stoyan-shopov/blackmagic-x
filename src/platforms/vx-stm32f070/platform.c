@@ -273,9 +273,23 @@ static const struct sw_driving_data
 	uint32_t	swclk_reset_bit_mask;
 };
 #endif
+
+
+volatile int svc_counter = 5;
+extern 
+void sv_call_handler(void)
+{
+	if (!svc_counter)
+		return;
+	svc_counter = 0;
+	get_fib();
+}
+
+
 static uint32_t swdptap_seq_in_32bits_optimized_asm(struct sw_driving_data * sw) __attribute__((naked));
 static uint32_t swdptap_seq_in_32bits_optimized_asm(struct sw_driving_data * sw)
 {
+	asm("svc	#0");
 	asm("push	{ r4, r5, r6, r7, lr }");
 	asm("ldmia	r0,	{ r0, r1, r2, r3, r4, r5, r6 }");
 	asm("mov	r0,	r6");
