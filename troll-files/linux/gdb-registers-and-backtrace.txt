@@ -1,0 +1,66 @@
+(gdb) info registers
+r0             0x9      9
+r1             0x1      1
+r2             0x1      1
+r3             0x0      0
+r4             0x9      9
+r5             0xa      10
+r6             0x2      2
+r7             0xffffffff       4294967295
+r8             0x1      1
+r9             0x9      9
+r10            0x0      0
+r11            0x1      1
+r12            0x17     23
+sp             0x20003c90       0x20003c90
+lr             0x1      1
+pc             0x800b75a        0x800b75a <fib+242>
+xpsr           0x4100000b       1090519051
+MSP            0x20003c90       536886416
+PSP            0xfffffffc       4294967292
+PRIMASK        0x0      0
+BASEPRI        0x0      0
+FAULTMASK      0x0      0
+CONTROL        0x0      0
+(gdb) bt
+#0  fib (n=<optimized out>) at inline-test.c:8
+#1  fib (n=3) at inline-test.c:8
+#2  fib (n=4) at inline-test.c:8
+#3  fib (n=5) at inline-test.c:8
+#4  fib (n=6) at inline-test.c:8
+#5  fib (n=7) at inline-test.c:8
+#6  fib (n=8) at inline-test.c:8
+#7  fib (n=9) at inline-test.c:8
+#8  0x0800b77a in fib (n=10) at inline-test.c:8
+#9  fib (n=<optimized out>) at inline-test.c:8
+#10 fib (n=12) at inline-test.c:8
+#11 fib (n=13) at inline-test.c:8
+#12 fib (n=14) at inline-test.c:8
+#13 fib (n=15) at inline-test.c:8
+#14 fib (n=16) at inline-test.c:8
+#15 fib (n=17) at inline-test.c:8
+#16 fib (n=18) at inline-test.c:8
+#17 0x0800b96a in fib (n=19) at inline-test.c:8
+#18 fib (n=20) at inline-test.c:8
+#19 get_fib () at inline-test.c:14
+#20 0x08005716 in sv_call_handler () at platforms/vx-stm32f070/platform.c:285
+#21 <signal handler called>
+#22 swdptap_seq_in_32bits_optimized_asm (sw=sw@entry=0x8012d60 <vx_sw_driving_data>)
+    at platforms/vx-stm32f070/platform.c:293
+#23 0x08005868 in swdptap_seq_in_parity_32bits_optimized (ret=0x20002374)
+    at platforms/vx-stm32f070/platform.c:660
+#24 swdptap_seq_in_parity (ret=ret@entry=0x20002374, ticks=ticks@entry=32)
+    at platforms/vx-stm32f070/platform.c:713
+#25 0x08000a0a in adiv5_swdp_scan () at target/adiv5_swdp.c:68
+---Type <return> to continue, or q <return> to quit---
+#26 0x08000bbc in cmd_swdp_scan () at command.c:199
+#27 0x08000dfa in command_process (t=0x800a989 <interpret+188>,
+    cmd=cmd@entry=0x8010347 "swdp_scan") at command.c:113
+#28 0x08002d34 in do_swdp_scan () at gdb_main.c:542
+#29 0x0800a988 in interpret () at sforth/engine.c:440
+#30 0x0800ae04 in do_quit () at sforth/dictionary.c:1638
+#31 0x08002f9c in gdb_main_loop (tc=0x20001eb8 <innermost_exception>, in_syscall=<optimized out>)
+    at gdb_main.c:118
+#32 0x0800351a in gdb_main () at gdb_main.c:494
+#33 0x08004bd8 in main (argc=<optimized out>, argv=<optimized out>) at main.c:47
+(gdb)
