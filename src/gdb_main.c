@@ -498,6 +498,47 @@ void gdb_main(void)
 #include "engine.h"
 #include "sf-word-wizard.h"
 
+static void wait_target_halted(void)
+{
+
+	target_addr watch;
+	enum target_halt_reason reason;
+
+	if(!cur_target) {
+		/* Report "target exited" if no target */
+		print_str("target not connected");
+		return;
+	}
+
+	/* Wait for target halt */
+	while(!(reason = target_halt_poll(cur_target, &watch))) {
+		unsigned char c = gdb_if_poll_char();
+		if((c == '\x03') || (c == '\x04')) {
+			target_halt_request(cur_target);
+		}
+	}
+	SET_RUN_STATE(0);
+
+	/* Translate reason to GDB signal */
+	switch (reason) {
+	case TARGET_HALT_ERROR:
+		print_str("target-lost\n");
+		break;
+	case TARGET_HALT_REQUEST:
+		print_str("target-halted\n");
+		break;
+	case TARGET_HALT_WATCHPOINT:
+		print_str("target-halted-watchpoint\n");
+		break;
+	case TARGET_HALT_FAULT:
+		print_str("target-halted-fault\n");
+		break;
+	default:
+		print_str("target-halted-breakpoint\n");
+	}
+}
+
+
 static void do_swdp_scan(void) { sf_push(command_process(cur_target, "swdp_scan")); }
 static void do_gdb_attach(void) { sf_push((cur_target = target_attach_n(1, &gdb_controller)) != 0); }
 static void do_read_registers(void)
@@ -539,16 +580,10 @@ enum target_halt_reason reason;
 	{
 		target_halt_resume(cur_target, true);
 		SET_RUN_STATE(1);
-
-		/* Wait for target halt */
-		while(!(reason = target_halt_poll(cur_target, &watch)));
-		SET_RUN_STATE(0);
-		sf_push(reason);
+		wait_target_halted();
 	}
 	else
-	{
 		print_str("target not connected\n");
-	}
 }
 static void do_target_resume(void)
 {
@@ -556,7 +591,7 @@ static void do_target_resume(void)
 	{
 		target_halt_resume(cur_target, false);
 		SET_RUN_STATE(1);
-		print_str("target running\n");
+		wait_target_halted();
 	}
 	else
 		print_str("target not connected\n");
@@ -578,7 +613,8 @@ static void do_target_request_halt(void)
 	if (cur_target)
 	{
 		target_halt_request(cur_target);
-		print_str("requested target halt\n");
+		//print_str("requested target halt\n");
+		wait_target_halted();
 	}
 	else
 		print_str("target not connected\n");
@@ -674,6 +710,21 @@ static void do_target_reset(void)
 	}
 }
 
+static void do_breakpoint_set(void)
+{
+int result, length = sf_pop();
+	/* ( address length --) */
+	result = target_breakwatch_set(cur_target, TARGET_BREAK_HARD, sf_pop(), length);
+	print_str(result ? "breakpoint-error\n" : "breakpoint-ok\n");
+}
+static void do_breakpoint_clear(void)
+{
+int result, length = sf_pop();
+	/* ( address length --) */
+	result = target_breakwatch_clear(cur_target, TARGET_BREAK_HARD, sf_pop(), length);
+	print_str(result ? "breakpoint-error\n" : "breakpoint-ok\n");
+}
+
 static struct word dict_base_dummy_word[1] = { MKWORD(0, 0, "", 0), };
 static const struct word custom_dict[] = {
 	/* override the sforth supplied engine reset */
@@ -690,6 +741,8 @@ static const struct word custom_dict[] = {
 	MKWORD(custom_dict,		__COUNTER__,	"target-reset",		do_target_reset),
 	MKWORD(custom_dict,		__COUNTER__,	"flash-erase",		do_flash_erase),
 	MKWORD(custom_dict,		__COUNTER__,	"flash-write",		do_flash_write),
+	MKWORD(custom_dict,		__COUNTER__,	"breakpoint-set",	do_breakpoint_set),
+	MKWORD(custom_dict,		__COUNTER__,	"breakpoint-clear",	do_breakpoint_clear),
 
 }, * custom_dict_start = custom_dict + __COUNTER__;
 

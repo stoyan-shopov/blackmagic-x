@@ -34,6 +34,7 @@ void gdb_if_putchar_single(unsigned char c);
 void gdb_if_flush(void);
 unsigned char gdb_if_getchar_single(void);
 bool is_sforth_mode_active(void);
+unsigned char gdb_if_poll_char(void);
 
 #endif
 
