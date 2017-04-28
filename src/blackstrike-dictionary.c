@@ -29,11 +29,13 @@ static void do_gcd(void)
 */
 { do { do_over(); do_mod(); do_swap(); do_over(); do_zero_not_equals(); } while (sf_pop()); do_nip(); }
 
+extern void get_fib();
 static struct word dict_base_dummy_word[1] = { MKWORD(0, 0, "", 0), };
 static const struct word custom_dict[] = {
 	/* override the sforth supplied engine reset */
 	MKWORD(dict_base_dummy_word,	0,		"squared",	do_squared),
 	MKWORD(custom_dict,		__COUNTER__,	"gcd",	do_gcd),
+	MKWORD(custom_dict,		__COUNTER__,	"fib",	get_fib),
 
 }, * custom_dict_start = custom_dict + __COUNTER__;
 

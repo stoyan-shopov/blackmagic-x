@@ -36,6 +36,7 @@ static volatile uint32_t count_new;
 static uint8_t double_buffer_out[CDCACM_PACKET_SIZE];
 #endif
 
+volatile int abc;
 void gdb_if_putchar(unsigned char c, int flush)
 {
 	buffer_in[count_in++] = c;
@@ -43,6 +44,7 @@ void gdb_if_putchar(unsigned char c, int flush)
 		/* Refuse to send if USB isn't configured, and
 		 * don't bother if nobody's listening */
 		if((cdcacm_get_config() != 1) || !cdcacm_get_dtr()) {
+			abc ++;
 			count_in = 0;
 			return;
 		}

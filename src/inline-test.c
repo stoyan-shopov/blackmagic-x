@@ -9,7 +9,11 @@ static int fib(int n)
 		+ fib(n - 2);
 }
 
-int get_fib(void)
+
+void adiv5_mem_read(void *ap, void *dest, int src, int len);
+
+int get_fib(int src, int len)
 {
+	adiv5_mem_read(0, 0, 0, 0);
 	return fib(x);
 }
