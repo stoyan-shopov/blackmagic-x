@@ -137,6 +137,10 @@ int gdb_main_loop(struct target_controller *tc, bool in_syscall)
 			uint32_t addr, len;
 			ERROR_IF_NO_TARGET();
 			sscanf(pbuf, "m%" SCNx32 ",%" SCNx32, &addr, &len);
+			if (len > sizeof(pbuf) / 2) {
+				gdb_putpacketz("E02");
+				break;
+			}
 			DEBUG("m packet: addr = %" PRIx32 ", len = %" PRIx32 "\n", addr, len);
 			uint8_t mem[len];
 			if (target_mem_read(cur_target, mem, addr, len))
@@ -158,6 +162,10 @@ int gdb_main_loop(struct target_controller *tc, bool in_syscall)
 			int hex;
 			ERROR_IF_NO_TARGET();
 			sscanf(pbuf, "M%" SCNx32 ",%" SCNx32 ":%n", &addr, &len, &hex);
+			if (len > (unsigned)(size - hex) / 2) {
+				gdb_putpacketz("E02");
+				break;
+			}
 			DEBUG("M packet: addr = %" PRIx32 ", len = %" PRIx32 "\n", addr, len);
 			uint8_t mem[len];
 			unhexify(mem, pbuf + hex, len);
@@ -273,6 +281,10 @@ int gdb_main_loop(struct target_controller *tc, bool in_syscall)
 			int bin;
 			ERROR_IF_NO_TARGET();
 			sscanf(pbuf, "X%" SCNx32 ",%" SCNx32 ":%n", &addr, &len, &bin);
+			if (len > (unsigned)(size - bin)) {
+				gdb_putpacketz("E02");
+				break;
+			}
 			DEBUG("X packet: addr = %" PRIx32 ", len = %" PRIx32 "\n", addr, len);
 			memmove(pbuf, pbuf + bin, len);
 			if (target_mem_write(cur_target, addr, pbuf, len))
