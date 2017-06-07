@@ -37,7 +37,7 @@ static uint32_t adiv5_swdp_read(ADIv5_DP_t *dp, uint16_t addr);
 
 static uint32_t adiv5_swdp_error(ADIv5_DP_t *dp);
 
-static uint32_t adiv5_swdp_low_access(ADIv5_DP_t *dp, uint8_t RnW,
+uint32_t adiv5_swdp_low_access(ADIv5_DP_t *dp, uint8_t RnW,
 				      uint16_t addr, uint32_t value);
 
 static void adiv5_swdp_abort(ADIv5_DP_t *dp, uint32_t abort);
@@ -116,7 +116,7 @@ static uint32_t adiv5_swdp_error(ADIv5_DP_t *dp)
 	return err;
 }
 
-static uint32_t adiv5_swdp_low_access(ADIv5_DP_t *dp, uint8_t RnW,
+uint32_t adiv5_swdp_low_access(ADIv5_DP_t *dp, uint8_t RnW,
 				      uint16_t addr, uint32_t value)
 {
 	bool APnDP = addr & ADIV5_APnDP;

@@ -299,7 +299,7 @@ bool stm32l0_probe(target* t)
 
 
 /** Lock the NVM control registers preventing writes or erases. */
-static void stm32lx_nvm_lock(target *t, uint32_t nvm)
+void stm32lx_nvm_lock(target *t, uint32_t nvm)
 {
         target_mem_write32(t, STM32Lx_NVM_PECR(nvm), STM32Lx_NVM_PECR_PELOCK);
 }

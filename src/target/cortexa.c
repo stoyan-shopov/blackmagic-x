@@ -335,6 +335,12 @@ static void cortexa_slow_mem_write(target *t, target_addr dest, const void *src,
 	}
 }
 
+void invoke_slow_mem_write(void)
+{
+int x = 0x11223344;
+	cortexa_slow_mem_write(0, 13, & x, sizeof x);
+}
+
 static bool cortexa_check_error(target *t)
 {
 	struct cortexa_priv *priv = t->priv;

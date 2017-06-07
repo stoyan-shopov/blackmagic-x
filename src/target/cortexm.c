@@ -342,7 +342,7 @@ void cortexm_detach(target *t)
 		target_mem_write32(t, CORTEXM_DWT_FUNC(i), 0);
 
 	/* Disable debug */
-	target_mem_write32(t, CORTEXM_DHCSR, CORTEXM_DHCSR_DBGKEY);
+	//target_mem_write32(t, CORTEXM_DHCSR, CORTEXM_DHCSR_DBGKEY);
 }
 
 enum { DB_DHCSR, DB_DCRSR, DB_DCRDR, DB_DEMCR };
