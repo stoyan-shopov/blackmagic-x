@@ -50,13 +50,14 @@ static bool cmd_jtag_scan(target *t, int argc, char **argv);
 static bool cmd_swdp_scan(void);
 static bool cmd_targets(void);
 static bool cmd_morse(void);
+static bool cmd_halt_timeout(target *t, int argc, const char **argv);
 static bool cmd_connect_srst(target *t, int argc, const char **argv);
 static bool cmd_hard_srst(void);
 #ifdef PLATFORM_HAS_POWER_SWITCH
 static bool cmd_target_power(target *t, int argc, const char **argv);
 #endif
 #ifdef PLATFORM_HAS_TRACESWO
-static bool cmd_traceswo(void);
+static bool cmd_traceswo(target *t, int argc, const char **argv);
 #endif
 #ifdef PLATFORM_HAS_DEBUG
 static bool cmd_debug_bmp(target *t, int argc, const char **argv);
@@ -69,13 +70,14 @@ const struct command_s cmd_list[] = {
 	{"swdp_scan", (cmd_handler)cmd_swdp_scan, "Scan SW-DP for devices" },
 	{"targets", (cmd_handler)cmd_targets, "Display list of available targets" },
 	{"morse", (cmd_handler)cmd_morse, "Display morse error message" },
+	{"halt_timeout", (cmd_handler)cmd_halt_timeout, "Timeout (ms) to wait until Cortex-M is halted: (Default 2000)" },
 	{"connect_srst", (cmd_handler)cmd_connect_srst, "Configure connect under SRST: (enable|disable)" },
 	{"hard_srst", (cmd_handler)cmd_hard_srst, "Force a pulse on the hard SRST line - disconnects target" },
 #ifdef PLATFORM_HAS_POWER_SWITCH
 	{"tpwr", (cmd_handler)cmd_target_power, "Supplies power to the target: (enable|disable)"},
 #endif
 #ifdef PLATFORM_HAS_TRACESWO
-	{"traceswo", (cmd_handler)cmd_traceswo, "Start trace capture" },
+	{"traceswo", (cmd_handler)cmd_traceswo, "Start trace capture [(baudrate) for async swo]" },
 #endif
 #ifdef PLATFORM_HAS_DEBUG
 	{"debug_bmp", (cmd_handler)cmd_debug_bmp, "Output BMP \"debug\" strings to the second vcom: (enable|disable)"},
@@ -87,6 +89,7 @@ static bool connect_assert_srst;
 #ifdef PLATFORM_HAS_DEBUG
 bool debug_bmp;
 #endif
+long cortexm_wait_timeout = 2000; /* Timeout to wait for Cortex to react on halt command. */
 
 int command_process(target *t, char *cmd)
 {
@@ -255,6 +258,16 @@ static bool cmd_connect_srst(target *t, int argc, const char **argv)
 	return true;
 }
 
+static bool cmd_halt_timeout(target *t, int argc, const char **argv)
+{
+	(void)t;
+	if (argc > 1)
+		cortexm_wait_timeout = atol(argv[1]);
+	gdb_outf("Cortex-M timeout to wait for device haltes: %d\n",
+				 cortexm_wait_timeout);
+	return true;
+}
+
 static bool cmd_hard_srst(void)
 {
 	target_list_free();
@@ -277,10 +290,20 @@ static bool cmd_target_power(target *t, int argc, const char **argv)
 #endif
 
 #ifdef PLATFORM_HAS_TRACESWO
-static bool cmd_traceswo(void)
+static bool cmd_traceswo(target *t, int argc, const char **argv)
 {
+#if defined(STM32L0) || defined(STM32F3) || defined(STM32F4)
+	extern char serial_no[13];
+#else
 	extern char serial_no[9];
-	traceswo_init();
+#endif
+	uint32_t baudrate = 0;
+	(void)t;
+
+	if (argc > 1)
+		baudrate = atoi(argv[1]);
+
+	traceswo_init(baudrate);
 	gdb_outf("%s:%02X:%02X\n", serial_no, 5, 0x85);
 	return true;
 }

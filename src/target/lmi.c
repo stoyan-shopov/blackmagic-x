@@ -65,7 +65,6 @@ static void lmi_add_flash(target *t, size_t length)
 	f->blocksize = 0x400;
 	f->erase = lmi_flash_erase;
 	f->write = lmi_flash_write;
-	f->align = 4;
 	f->erased = 0xff;
 	target_add_flash(t, f);
 }
@@ -87,6 +86,13 @@ bool lmi_probe(target *t)
 		/* On Tiva targets, asserting SRST results in the debug
 		 * logic also being reset.  We can't assert SRST and must
 		 * only use the AIRCR SYSRESETREQ. */
+		t->target_options |= CORTEXM_TOPT_INHIBIT_SRST;
+		return true;
+
+	case 0x1022:    /* TM4C1230C3PM */
+		t->driver = lmi_driver_str;
+		target_add_ram(t, 0x20000000, 0x6000);
+		lmi_add_flash(t, 0x10000);
 		t->target_options |= CORTEXM_TOPT_INHIBIT_SRST;
 		return true;
 	}

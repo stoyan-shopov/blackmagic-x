@@ -241,7 +241,7 @@ class Target:
 			block = 0
 			for i in range(len(self.blocks)):
 				block += 1
-				if callable(progress_cb):
+				if callable(progress_cb) and totalblocks > 0:
 					progress_cb(block*100/totalblocks)
 
 				# Erase the block
@@ -291,7 +291,7 @@ class Target:
 
 	def flash_write_prepare(self, address, data):
 		for m in self.mem:
-			if (address >= m.offset) and (address + len(data) < m.offset + m.length):
+			if (address >= m.offset) and (address + len(data) <= m.offset + m.length):
 				m.prog(address, data)
 
 	def flash_commit(self, progress_cb=None):

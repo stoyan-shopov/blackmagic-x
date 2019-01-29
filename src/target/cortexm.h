@@ -22,6 +22,7 @@
 #include "target.h"
 #include "adiv5.h"
 
+extern long cortexm_wait_timeout;
 /* Private peripheral bus base address */
 #define CORTEXM_PPB_BASE	0xE0000000
 
@@ -36,6 +37,17 @@
 #define CORTEXM_DCRSR		(CORTEXM_SCS_BASE + 0xDF4)
 #define CORTEXM_DCRDR		(CORTEXM_SCS_BASE + 0xDF8)
 #define CORTEXM_DEMCR		(CORTEXM_SCS_BASE + 0xDFC)
+
+/* Cache identification */
+#define CORTEXM_CLIDR		(CORTEXM_SCS_BASE + 0xD78)
+#define CORTEXM_CTR		(CORTEXM_SCS_BASE + 0xD7C)
+#define CORTEXM_CCSIDR		(CORTEXM_SCS_BASE + 0xD80)
+#define CORTEXM_CSSELR		(CORTEXM_SCS_BASE + 0xD84)
+
+/* Cache maintenance operations */
+#define CORTEXM_ICIALLU		(CORTEXM_SCS_BASE + 0xF50)
+#define CORTEXM_DCCMVAC		(CORTEXM_SCS_BASE + 0xF68)
+#define CORTEXM_DCCIMVAC	(CORTEXM_SCS_BASE + 0xF70)
 
 #define CORTEXM_FPB_BASE	(CORTEXM_PPB_BASE + 0x2000)
 
@@ -156,7 +168,7 @@
 
 #define	CORTEXM_TOPT_INHIBIT_SRST (1 << 2)
 
-bool cortexm_probe(ADIv5_AP_t *ap);
+bool cortexm_probe(ADIv5_AP_t *ap, bool forced);
 ADIv5_AP_t *cortexm_ap(target *t);
 
 bool cortexm_attach(target *t);
@@ -164,6 +176,8 @@ void cortexm_detach(target *t);
 void cortexm_halt_resume(target *t, bool step);
 int cortexm_run_stub(target *t, uint32_t loadaddr,
                      uint32_t r0, uint32_t r1, uint32_t r2, uint32_t r3);
+int cortexm_mem_write_sized(
+	target *t, target_addr dest, const void *src, size_t len, enum align align);
 
 #endif
 

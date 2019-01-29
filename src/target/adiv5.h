@@ -34,6 +34,16 @@
 #define ADIV5_DP_SELECT   ADIV5_DP_REG(0x8)
 #define ADIV5_DP_RDBUFF   ADIV5_DP_REG(0xC)
 
+#define ADIV5_DP_BANK0    0
+#define ADIV5_DP_BANK1    1
+#define ADIV5_DP_BANK2    2
+#define ADIV5_DP_BANK3    3
+#define ADIV5_DP_BANK4    4
+
+#define ADIV5_DP_VERSION_MASK 0xf000
+#define ADIV5_DPv1            0x1000
+#define ADIV5_DPv2            0x2000
+
 /* AP Abort Register (ABORT) */
 /* Bits 31:5 - Reserved */
 #define ADIV5_DP_ABORT_ORUNERRCLR	(1 << 4)
@@ -100,11 +110,20 @@
 #define ADIV5_LOW_WRITE		0
 #define ADIV5_LOW_READ		1
 
+enum align {
+	ALIGN_BYTE     = 0,
+	ALIGN_HALFWORD = 1,
+	ALIGN_WORD     = 2,
+	ALIGN_DWORD    = 3
+};
+
 /* Try to keep this somewhat absract for later adding SW-DP */
 typedef struct ADIv5_DP_s {
 	int refcnt;
 
 	uint32_t idcode;
+	uint32_t dp_idcode; /* Contains DPvX revision*/
+	uint32_t targetid;  /* Contains IDCODE for DPv2 devices.*/
 
 	uint32_t (*dp_read)(struct ADIv5_DP_s *dp, uint16_t addr);
 	uint32_t (*error)(struct ADIv5_DP_s *dp);
@@ -167,6 +186,8 @@ void adiv5_jtag_dp_handler(jtag_dev_t *dev);
 
 void adiv5_mem_read(ADIv5_AP_t *ap, void *dest, uint32_t src, size_t len);
 void adiv5_mem_write(ADIv5_AP_t *ap, uint32_t dest, const void *src, size_t len);
+void adiv5_mem_write_sized(ADIv5_AP_t *ap, uint32_t dest, const void *src,
+						   size_t len, enum align align);
 
 #endif
 

@@ -1,7 +1,7 @@
 /*
  * This file is part of the Black Magic Debug project.
  *
- * Copyright (C) 2013 Gareth McMullin <gareth@blacksphere.co.nz>
+ * Copyright (C) 2018 Uwe Bonnes (bon@elektron.ikp.physik.tu-darmstadt.de)
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,8 +28,6 @@
 #include "platform.h"
 
 uint32_t app_address = 0x08000000;
-static uint16_t led_upgrade;
-static uint32_t led2_state = 0;
 extern uint32_t _stack;
 static uint32_t rev;
 
@@ -43,11 +41,6 @@ int main(void)
 {
 	rev = detect_rev();
 	rcc_clock_setup_in_hse_8mhz_out_72mhz();
-	if (rev == 0)
-		led_upgrade = GPIO8;
-	else
-		led_upgrade = GPIO9;
-
 	systick_set_clocksource(STK_CSR_CLKSOURCE_AHB_DIV8);
 	systick_set_reload(900000);
 
@@ -56,8 +49,6 @@ int main(void)
 	systick_interrupt_enable();
 	systick_counter_enable();
 
-	if (rev > 1) /* Reconnect USB */
-		gpio_set(GPIOA, GPIO15);
 	dfu_init(&st_usbfs_v1_usb_driver, UPD_MODE);
 
 	dfu_main();
@@ -70,16 +61,8 @@ void dfu_event(void)
 void sys_tick_handler(void)
 {
 	if (rev == 0) {
-		gpio_toggle(GPIOA, led_upgrade);
+		gpio_toggle(GPIOA, GPIO8);
 	} else {
-		if (led2_state & 1) {
-			gpio_set_mode(GPIOA, GPIO_MODE_OUTPUT_2_MHZ,
-				GPIO_CNF_OUTPUT_PUSHPULL, led_upgrade);
-			gpio_set(GPIOA, led_upgrade);
-		} else {
-			gpio_set_mode(GPIOA, GPIO_MODE_INPUT,
-				GPIO_CNF_INPUT_ANALOG, led_upgrade);
-		}
-		led2_state++;
+		gpio_toggle(GPIOC, GPIO13);
 	}
 }

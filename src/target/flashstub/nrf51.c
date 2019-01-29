@@ -1,7 +1,7 @@
 /*
  * This file is part of the Black Magic Debug project.
  *
- * Copyright (C) 2015  Black Sphere Technologies Ltd.
+ * Copyright (C) 2017  Black Sphere Technologies Ltd.
  * Written by Gareth McMullin <gareth@blacksphere.co.nz>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -17,25 +17,21 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include "libopencm3/stm32/flash.h"
+#include <stdint.h>
 #include "stub.h"
 
-#define SR_ERROR_MASK 0xF2
+/* Non-Volatile Memory Controller (NVMC) Registers */
+#define NVMC           ((volatile uint32_t *)0x4001E000)
+#define NVMC_READY     NVMC[0x100]
 
 void __attribute__((naked))
-stm32f4_flash_write_stub(uint32_t *dest, uint32_t *src, uint32_t size)
+nrf51_flash_write_stub(volatile uint32_t *dest, uint32_t *src, uint32_t size)
 {
-	for (int i = 0; i < size; i += 4) {
-		FLASH_CR = FLASH_CR_PROGRAM_X32 | FLASH_CR_PG;
+	for (int i; i < size; i += 4) {
 		*dest++ = *src++;
-		__asm("dsb");
-		while (FLASH_SR & FLASH_SR_BSY)
+		while (!(NVMC_READY & 1))
 			;
 	}
 
-	if (FLASH_SR & SR_ERROR_MASK)
-		stub_exit(1);
-
 	stub_exit(0);
 }
-
