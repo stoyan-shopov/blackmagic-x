@@ -141,6 +141,7 @@ static uint32_t get_le32(const void *vp)
 
 static uint8_t usbdfu_getstatus(uint32_t *bwPollTimeout)
 {
+#if 0
 	switch(usbdfu_state) {
 	case STATE_DFU_DNLOAD_SYNC:
 		usbdfu_state = STATE_DFU_DNBUSY;
@@ -158,11 +159,13 @@ static uint8_t usbdfu_getstatus(uint32_t *bwPollTimeout)
 	default:
 		return DFU_STATUS_OK;
 	}
+#endif
 }
 
 static void
 usbdfu_getstatus_complete(usbd_device *dev, struct usb_setup_data *req)
 {
+#if 0
 	(void)req;
 	(void)dev;
 
@@ -196,12 +199,14 @@ usbdfu_getstatus_complete(usbd_device *dev, struct usb_setup_data *req)
 	default:
 		return;
 	}
+#endif
 }
 
 static int usbdfu_control_request(usbd_device *dev,
 		struct usb_setup_data *req, uint8_t **buf, uint16_t *len,
 		void (**complete)(usbd_device *dev, struct usb_setup_data *req))
 {
+#if 0
 	(void)dev;
 
 	if((req->bmRequestType & 0x7F) != 0x21)
@@ -278,10 +283,12 @@ static int usbdfu_control_request(usbd_device *dev,
 	}
 
 	return 0;
+#endif
 }
 
 void dfu_init(const usbd_driver *driver, dfu_mode_t mode)
 {
+#if 0
 	get_dev_unique_id(serial_no);
 
 	usbdev = usbd_init(driver, &dev, &config,
@@ -292,6 +299,7 @@ void dfu_init(const usbd_driver *driver, dfu_mode_t mode)
 				USB_REQ_TYPE_CLASS | USB_REQ_TYPE_INTERFACE,
 				USB_REQ_TYPE_TYPE | USB_REQ_TYPE_RECIPIENT,
 				usbdfu_control_request);
+#endif
 }
 
 void dfu_main(void)
@@ -303,6 +311,7 @@ void dfu_main(void)
 #if defined(DFU_IFACE_STRING_OFFSET)
 static void set_dfu_iface_string(uint32_t size)
 {
+#if 0
 	uint32_t res;
 	char *p = if_string + DFU_IFACE_STRING_OFFSET;
 	/* We do not want the whole printf library in the bootloader.
@@ -322,13 +331,15 @@ static void set_dfu_iface_string(uint32_t size)
 	*p++ = res + '0';
 	size -= res * 10;
 	*p++ = size + '0';
+#endif
 }
 #else
-# define set_dfu_iface_string()
+# define set_dfu_iface_string(...)
 #endif
 
 static char *get_dev_unique_id(char *s)
 {
+#if 0
 #if defined(STM32F4) || defined(STM32F2)
 #	define UNIQUE_SERIAL_R 0x1FFF7A10
 #	define FLASH_SIZE_R    0x1fff7A22
@@ -372,4 +383,5 @@ static char *get_dev_unique_id(char *s)
 	s[8] = 0;
 
 	return s;
+#endif
 }

@@ -3,6 +3,8 @@ MFLAGS += --no-print-dir
 Q := @
 endif
 
+CFLAGS += -ggdb-3 -gdwarf5
+
 all:
 	$(Q)if [ ! -f libopencm3/Makefile ]; then \
 		echo "Initialising git submodules..." ;\

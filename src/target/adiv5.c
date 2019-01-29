@@ -557,12 +557,9 @@ adiv5_mem_read(ADIv5_AP_t *ap, void *dest, uint32_t src, size_t len)
 uint32_t max_write;
 
 void
-adiv5_mem_write_sized(ADIv5_AP_t *ap, uint32_t dest, const void *src, size_t len)
+adiv5_mem_write_sized(ADIv5_AP_t *ap, uint32_t dest, const void *src, size_t len, enum align align)
 {
 	uint32_t odest = dest;
-	enum align align = MIN(ALIGNOF(dest), ALIGNOF(len));
-	if (len > max_write)
-		max_write = len;
 	                
 	len >>= align;
 	ap_mem_access_setup(ap, dest, align);

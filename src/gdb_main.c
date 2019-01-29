@@ -705,12 +705,15 @@ int result = 0, i;
 
 static void do_question_target_mem_map(void)
 {
+char buf[1024];
 	if(!cur_target)
 	{
 		print_str("target not connected\n");
 		return;
 	}
-	print_str(target_mem_map(cur_target));
+	buf[sizeof buf - 1] = 0;
+	target_mem_map(cur_target, buf, sizeof buf);
+	print_str(buf);
 	print_str("\n");
 }
 static void do_target_reset(void)
